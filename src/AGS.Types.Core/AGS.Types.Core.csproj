@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.Types</RootNamespace>
+    <AssemblyName>AGS.Types</AssemblyName>
+    <!-- Upstream Properties/AssemblyInfo.cs supplies the assembly attributes (and AGS.Types.Version). -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Description>AGS project data model and .agf serialization (UI-free port of AGS.Types).</Description>
+    <!-- Upstream code: tolerate obsolete-API and nullable noise. -->
+    <NoWarn>$(NoWarn);CS0618;CS0108;CS0114;CS0162;CS0168;CS0169;CS0219;CS0414;CS0649;SYSLIB0011;SYSLIB0051</NoWarn>
+  </PropertyGroup>
+
+  <!-- Upstream files replaced by a fork in Forked/ (same relative path). -->
+  <ItemGroup>
+    <AgsTypesForked Include="EditorFeatures\EditorContentPanel.cs" />
+    <AgsTypesForked Include="EditorFeatures\ContentDocument.cs" />
+    <AgsTypesForked Include="EditorFeatures\MenuCommand.cs" />
+    <AgsTypesForked Include="EditorFeatures\BaseTemplate.cs" />
+    <AgsTypesForked Include="EditorFeatures\GameTemplate.cs" />
+    <AgsTypesForked Include="EditorFeatures\RoomTemplate.cs" />
+    <AgsTypesForked Include="Interfaces\IScriptEditorControl.cs" />
+    <AgsTypesForked Include="Interfaces\IGUIController.cs" />
+    <AgsTypesForked Include="Interfaces\IRoomController.cs" />
+    <AgsTypesForked Include="Interfaces\Docking\IDockingContainer.cs" />
+    <AgsTypesForked Include="Plugins\IAGSEditor.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\BuildTargetUIEditor.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\ColorUIEditor.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\PropertyTabEvents.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\PropertyTabInteractions.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\ScriptFunctionUIEditor.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\SpriteFileNameEditor.cs" />
+    <AgsTypesForked Include="PropertyGridExtras\StringListUIEditor.cs" />
+  </ItemGroup>
+
+  <!--
+    Upstream AGS.Types is compiled in place. Files that depend on WinForms or other
+    Windows-only APIs are excluded here and replaced by a fork in Forked/ or a stub in Compat/.
+    Every exclusion must be listed in docs/FORKED_FILES.md.
+  -->
+  <ItemGroup>
+    <Compile Include="$(AgsEditorSrc)AGS.Types\**\*.cs"
+             Exclude="$(AgsEditorSrc)AGS.Types\obj\**;
+                      $(AgsEditorSrc)AGS.Types\bin\**;
+                      $(AgsEditorSrc)AGS.Types\PropertyGridExtras\StringListUIEditorControl*.cs;
+                      @(AgsTypesForked->'$(AgsEditorSrc)AGS.Types\%(Identity)')"
+             Link="Upstream\%(RecursiveDir)%(Filename)%(Extension)" />
+
+    <EmbeddedResource Include="$(AgsEditorSrc)AGS.Types\Resources\roomdef.pal"
+                      LogicalName="AGS.Types.Resources.roomdef.pal"
+                      Link="Upstream\Resources\roomdef.pal" />
+  </ItemGroup>
+
+  <!-- See Directory.Build.targets. -->
+  <ItemGroup>
+    <AgsSourceRewrite Include="ansi-encoding"
+                      Pattern="(?&lt;![\w.])(?:System\.Text\.)?Encoding\.Default\b"
+                      ReplaceWith="global::AGS.Types.AnsiEncoding.Default" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Imaging/AGS.Imaging.csproj" />
+  </ItemGroup>
+
+</Project>

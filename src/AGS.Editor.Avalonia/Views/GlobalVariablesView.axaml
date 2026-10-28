@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             xmlns:core="using:AGS.Editor"
+             x:Class="AGS.Editor.Avalonia.Views.GlobalVariablesView"
+             x:DataType="vm:GlobalVariablesDocument">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+      <Button Content="Add new variable..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).GlobalVariableActionCommand}" CommandParameter="add" />
+      <Button Content="Edit..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).GlobalVariableActionCommand}" CommandParameter="edit"
+              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Content="Delete" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).GlobalVariableActionCommand}" CommandParameter="delete"
+              IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <TextBlock Text="Global variables are available in all scripts after the next build." Opacity="0.6" VerticalAlignment="Center" Margin="12,0,0,0" />
+    </StackPanel>
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="220,180,*" Margin="12,0,0,4">
+      <TextBlock Text="Name" FontWeight="SemiBold" />
+      <TextBlock Grid.Column="1" Text="Type" FontWeight="SemiBold" />
+      <TextBlock Grid.Column="2" Text="Initial value" FontWeight="SemiBold" />
+    </Grid>
+    <ListBox ItemsSource="{Binding Variables}" SelectedItem="{Binding Selected}" DoubleTapped="OnGlobalVariableDoubleTapped">
+      <ListBox.ItemTemplate>
+        <DataTemplate DataType="vm:GlobalVariableRow">
+          <Grid ColumnDefinitions="220,180,*">
+            <TextBlock Text="{Binding Name}" />
+            <TextBlock Grid.Column="1" Text="{Binding Type}" />
+            <TextBlock Grid.Column="2" Text="{Binding DefaultValue}" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

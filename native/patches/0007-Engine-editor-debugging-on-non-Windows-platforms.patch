@@ -1,0 +1,284 @@
+Engine: editor debugging on non-Windows platforms through files
+
+The engine only created an editor debugger on Windows (named pipes); elsewhere
+--enabledebugger quit with "editor_debugger is NULL", and breaking into the
+debugger and reporting script errors were compiled out. FileBasedAGSDebugger
+already existed but was unused.
+
+The command line option "--debugger-comm <pipe|file>" selects how the engine
+talks to the editor: named pipes (Windows only, as before) or
+FileBasedAGSDebugger on every platform, which exchanges its files
+(dbgsend.tmp / dbgrecv.tmp) in the folder given as the instance token and
+writes messages atomically (temporary file + rename). Without the option the
+platform default is used: pipes on Windows, files elsewhere.
+break_into_debugger() and send_exception_to_debugger() work on all platforms;
+only SetForegroundWindow stays Windows-specific.
+
+Used by ags4mac (macOS editor port) for breakpoints and stepping.
+Branch engine-file-debugger-non-windows (two commits), adventuregamestudio/ags#3159.
+
+diff --git a/Engine/debug/debug.cpp b/Engine/debug/debug.cpp
+index 40daf25c3..d768d61bc 100644
+--- a/Engine/debug/debug.cpp
++++ b/Engine/debug/debug.cpp
+@@ -41,6 +41,7 @@
+ #include "script/cc_common.h"
+ #include "util/memory_compat.h"
+ #include "util/path.h"
++#include "util/string_compat.h"
+ #include "util/string_utils.h"
+ #include "util/textstreamwriter.h"
+ 
+@@ -61,25 +62,30 @@ IAGSEditorDebugger *editor_debugger = nullptr;
+ int break_on_next_script_step = 0;
+ volatile int game_paused_in_debugger = 0;
+ 
+-#if AGS_PLATFORM_OS_WINDOWS
++// How the engine talks to the editor (--debugger-comm): "pipe" (named pipes, Windows only)
++// or "file" (files in a folder, which the editor passes as the instance token).
++// Empty means the platform default: pipes on Windows, files elsewhere.
++char editor_debugger_comm[16];
+ 
++#if AGS_PLATFORM_OS_WINDOWS
+ #include "platform/windows/debug/namedpipesagsdebugger.h"
+-
+ HWND editor_window_handle = 0;
++#endif
++#include "debug/filebasedagsdebugger.h"
+ 
+-IAGSEditorDebugger *GetEditorDebugger(const char *instanceToken)
+-{
+-    return new NamedPipesAGSDebugger(instanceToken);
+-}
+-
+-#else   // AGS_PLATFORM_OS_WINDOWS
+-
+-IAGSEditorDebugger *GetEditorDebugger(const char* /*instanceToken*/)
++IAGSEditorDebugger *GetEditorDebugger(const char *instanceToken, const char *comm)
+ {
+-    return nullptr;
+-}
+-
++    if (ags_stricmp(comm, "file") == 0)
++        return new FileBasedAGSDebugger(instanceToken);
++#if AGS_PLATFORM_OS_WINDOWS
++    if (comm[0] == 0 || ags_stricmp(comm, "pipe") == 0)
++        return new NamedPipesAGSDebugger(instanceToken);
++#else
++    if (comm[0] == 0)
++        return new FileBasedAGSDebugger(instanceToken);
+ #endif
++    return nullptr; // not supported on this platform
++}
+ 
+ int debug_flags=0;
+ 
+@@ -436,15 +442,10 @@ bool send_state_to_debugger(const char *msg)
+ 
+ bool init_editor_debugging(const ConfigTree &cfg) 
+ {
+-#if AGS_PLATFORM_OS_WINDOWS
+-    editor_debugger = GetEditorDebugger(editor_debugger_instance_token);
+-#else
+-    // Editor isn't ported yet
+-    editor_debugger = nullptr;
+-#endif
++    editor_debugger = GetEditorDebugger(editor_debugger_instance_token, editor_debugger_comm);
+ 
+     if (editor_debugger == nullptr)
+-        quit("editor_debugger is NULL but debugger enabled");
++        quitprintf("Editor debugger communication '%s' is not supported on this platform", editor_debugger_comm);
+ 
+     if (editor_debugger->Initialize())
+     {
+@@ -573,11 +574,12 @@ DebuggerResponse check_for_messages_from_debugger()
+ 
+ bool send_exception_to_debugger(const char *qmsg)
+ {
+-#if AGS_PLATFORM_OS_WINDOWS
+     want_exit = false;
++#if AGS_PLATFORM_OS_WINDOWS
+     // allow the editor to break with the error message
+     if (editor_window_handle != NULL)
+         SetForegroundWindow(editor_window_handle);
++#endif
+ 
+     if (!send_state_to_debugger("ERROR", qmsg))
+         return false;
+@@ -588,22 +590,19 @@ bool send_exception_to_debugger(const char *qmsg)
+     {
+         platform->Delay(10);
+     }
+-#else
+-    (void)qmsg;
+-#endif
+     return true;
+ }
+ 
+ 
+ void break_into_debugger() 
+ {
+-#if AGS_PLATFORM_OS_WINDOWS
+-
+     if (!send_state_to_debugger("BREAK"))
+         return;
+ 
++#if AGS_PLATFORM_OS_WINDOWS
+     if (editor_window_handle != NULL)
+         SetForegroundWindow(editor_window_handle);
++#endif
+ 
+     game_paused_in_debugger = 1;
+ 
+@@ -612,8 +611,6 @@ void break_into_debugger()
+         update_polled_stuff();
+         platform->YieldCPU();
+     }
+-
+-#endif
+ }
+ 
+ int scrDebugWait = 0;
+diff --git a/Engine/debug/debugger.h b/Engine/debug/debugger.h
+index 891d76f63..a79f4f3f5 100644
+--- a/Engine/debug/debugger.h
++++ b/Engine/debug/debugger.h
+@@ -23,6 +23,7 @@ struct ScriptPosition;
+ extern int editor_debugging_enabled;
+ extern int editor_debugging_initialized;
+ extern char editor_debugger_instance_token[100];
++extern char editor_debugger_comm[16];
+ extern IAGSEditorDebugger *editor_debugger;
+ extern int break_on_next_script_step;
+ 
+diff --git a/Engine/debug/filebasedagsdebugger.cpp b/Engine/debug/filebasedagsdebugger.cpp
+index 445d3fceb..2e83d8d72 100644
+--- a/Engine/debug/filebasedagsdebugger.cpp
++++ b/Engine/debug/filebasedagsdebugger.cpp
+@@ -26,11 +26,22 @@ using namespace AGS::Common;
+ 
+ const char* SENT_MESSAGE_FILE_NAME = "dbgrecv.tmp";
+ 
++FileBasedAGSDebugger::FileBasedAGSDebugger(const char *directory)
++{
++    if (directory && File::IsDirectory(directory))
++        _directory = directory;
++}
++
++String FileBasedAGSDebugger::FilePath(const char *name) const
++{
++    return _directory.IsEmpty() ? String(name) : Path::ConcatPaths(_directory, name);
++}
++
+ bool FileBasedAGSDebugger::Initialize()
+ {
+-    if (File::IsFile(SENT_MESSAGE_FILE_NAME))
++    if (File::IsFile(FilePath(SENT_MESSAGE_FILE_NAME)))
+     {
+-        File::DeleteFile(SENT_MESSAGE_FILE_NAME);
++        File::DeleteFile(FilePath(SENT_MESSAGE_FILE_NAME));
+     }
+     return true;
+ }
+@@ -41,27 +52,30 @@ void FileBasedAGSDebugger::Shutdown()
+ 
+ bool FileBasedAGSDebugger::SendMessageToEditor(const char *message) 
+ {
+-    while (File::IsFile(SENT_MESSAGE_FILE_NAME))
++    while (File::IsFile(FilePath(SENT_MESSAGE_FILE_NAME)))
+     {
+         platform->YieldCPU();
+     }
+ 
+-    auto out = File::CreateFile(SENT_MESSAGE_FILE_NAME);
+-    // CHECKME: originally the file was opened as "wb" for some reason,
+-    // which means the message should be written as a binary array;
+-    // or shouldn't it?
+-    out->Write(message, strlen(message));
+-    return true;
++    // Write a temporary file and rename it, so the editor never reads a partial message
++    const String tempName = FilePath("dbgrecv.part");
++    {
++        auto out = File::CreateFile(tempName);
++        if (!out)
++            return false;
++        out->Write(message, strlen(message));
++    }
++    return File::RenameFile(tempName, FilePath(SENT_MESSAGE_FILE_NAME));
+ }
+ 
+ bool FileBasedAGSDebugger::IsMessageAvailable()
+ {
+-    return (File::IsFile("dbgsend.tmp") != 0);
++    return (File::IsFile(FilePath("dbgsend.tmp")) != 0);
+ }
+ 
+ char* FileBasedAGSDebugger::GetNextMessage()
+ {
+-    auto in = File::OpenFileRead("dbgsend.tmp");
++    auto in = File::OpenFileRead(FilePath("dbgsend.tmp"));
+     if (in == nullptr)
+     {
+         // check again, because the editor might have deleted the file in the meantime
+@@ -70,7 +84,7 @@ char* FileBasedAGSDebugger::GetNextMessage()
+     size_t fileSize = (size_t)std::min((soff_t)std::numeric_limits<size_t>::max, in->GetLength());
+     char *msg = (char*)malloc(fileSize + 1);
+     in->Read(msg, fileSize);
+-    File::DeleteFile("dbgsend.tmp");
++    File::DeleteFile(FilePath("dbgsend.tmp"));
+     msg[fileSize] = 0;
+     return msg;
+ }
+diff --git a/Engine/debug/filebasedagsdebugger.h b/Engine/debug/filebasedagsdebugger.h
+index 1564cc16b..fb1c3aa99 100644
+--- a/Engine/debug/filebasedagsdebugger.h
++++ b/Engine/debug/filebasedagsdebugger.h
+@@ -16,10 +16,14 @@
+ #define __AC_FILEBASEDAGSDEBUGGER_H
+ 
+ #include "debug/agseditordebugger.h"
++#include "util/string.h"
+ 
+ struct FileBasedAGSDebugger : IAGSEditorDebugger
+ {
+ public:
++    FileBasedAGSDebugger() = default;
++    // Exchange files in the given folder (current directory if empty or not a folder)
++    explicit FileBasedAGSDebugger(const char *directory);
+ 
+     bool Initialize() override;
+     void Shutdown() override;
+@@ -27,6 +31,9 @@ public:
+     bool IsMessageAvailable() override;
+     char* GetNextMessage() override;
+ 
++private:
++    AGS::Common::String FilePath(const char *name) const;
++    AGS::Common::String _directory;
+ };
+ 
+ extern const char* SENT_MESSAGE_FILE_NAME;
+diff --git a/Engine/main/main.cpp b/Engine/main/main.cpp
+index af1707ed0..e4f2f96d6 100644
+--- a/Engine/main/main.cpp
++++ b/Engine/main/main.cpp
+@@ -57,6 +57,7 @@ String cmdGameDataPath; // game path received from cmdline
+ 
+ extern int editor_debugging_initialized;
+ extern char editor_debugger_instance_token[100];
++extern char editor_debugger_comm[16];
+ 
+ 
+ // Startup flags, set from parameters to engine
+@@ -260,6 +261,11 @@ static int main_process_cmdline(ConfigTree &cfg, int argc, char *argv[])
+             cfg["graphics"]["windowed"] = "1";
+             ee++;
+         }
++        else if ((ags_stricmp(arg,"--debugger-comm") == 0) && (argc > ee + 1))
++        {
++            snprintf(editor_debugger_comm, sizeof(editor_debugger_comm), "%s", argv[ee + 1]);
++            ee++;
++        }
+         else if (ags_stricmp(arg, "--conf") == 0 && (argc > ee + 1))
+         {
+             usetup.UserConfPath = argv[++ee];

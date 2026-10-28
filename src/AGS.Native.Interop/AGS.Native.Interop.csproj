@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.Native</RootNamespace>
+    <Description>P/Invoke bindings to libagsnative.dylib; replaces the C++/CLI AGS.Native of the upstream editor.</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AGS.Native.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Types.Core/AGS.Types.Core.csproj" />
+    <ProjectReference Include="../AGS.Imaging/AGS.Imaging.csproj" />
+  </ItemGroup>
+
+  <!-- Built by scripts/build-native.sh (native/CMakeLists.txt). -->
+  <ItemGroup>
+    <None Include="$(AgsNativeOut)libagsnative.dylib"
+          Link="libagsnative.dylib"
+          CopyToOutputDirectory="PreserveNewest"
+          Visible="false"
+          Condition="Exists('$(AgsNativeOut)libagsnative.dylib')" />
+  </ItemGroup>
+
+  <Target Name="AgsWarnMissingNativeLibrary" BeforeTargets="Build" Condition="!Exists('$(AgsNativeOut)libagsnative.dylib')">
+    <Warning Text="libagsnative.dylib not found in $(AgsNativeOut); run scripts/build-native.sh. Native features will fail at runtime." />
+  </Target>
+
+</Project>

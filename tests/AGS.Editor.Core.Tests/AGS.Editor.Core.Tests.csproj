@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- xUnit v3 test projects are executables (Microsoft.Testing.Platform, see global.json). -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AGS.Editor.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/AGS.Editor.Core/AGS.Editor.Core.csproj" />
+  </ItemGroup>
+
+</Project>

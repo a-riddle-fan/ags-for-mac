@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.CScript.Compiler</RootNamespace>
+    <AssemblyName>AGS.CScript.Compiler</AssemblyName>
+    <!-- Upstream Properties/AssemblyInfo.cs supplies the assembly attributes. -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Description>Managed AGS script preprocessor and legacy compiler, compiled in place from upstream.</Description>
+    <NoWarn>$(NoWarn);CS0618;CS0162;CS0168;CS0169;CS0219;CS0414;CS0649</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(AgsEditorSrc)AGS.CScript.Compiler\**\*.cs"
+             Exclude="$(AgsEditorSrc)AGS.CScript.Compiler\obj\**;
+                      $(AgsEditorSrc)AGS.CScript.Compiler\bin\**"
+             Link="Upstream\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Types.Core/AGS.Types.Core.csproj" />
+  </ItemGroup>
+
+</Project>

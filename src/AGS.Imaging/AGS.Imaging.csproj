@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.Imaging</RootNamespace>
+    <Description>Cross-platform image abstraction replacing System.Drawing.Bitmap/Graphics. No dependency on the AGS data model.</Description>
+  </PropertyGroup>
+
+</Project>

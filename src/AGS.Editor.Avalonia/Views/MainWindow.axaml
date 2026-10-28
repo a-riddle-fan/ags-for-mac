@@ -1,0 +1,122 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+        xmlns:views="using:AGS.Editor.Avalonia.Views"
+        xmlns:types="using:AGS.Types"
+        xmlns:core="using:AGS.Editor"
+        x:Class="AGS.Editor.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding Title}"
+        Width="1440" Height="900" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+  <!-- macOS menu bar -->
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="File">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="New Game from Template…" Command="{Binding NewGameFromTemplateCommand}" Gesture="Meta+Shift+N" />
+            <NativeMenuItem Header="Open Project…" Command="{Binding OpenProjectCommand}" Gesture="Meta+O" />
+            <NativeMenuItem Header="Save" Command="{Binding SaveCommand}" Gesture="Meta+S" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Make Template from This Game…" Command="{Binding MakeTemplateCommand}" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Auto-number Speech Lines…" Command="{Binding AutoNumberSpeechCommand}" />
+            <NativeMenuItem Header="Create Voice Acting Script…" Command="{Binding CreateVoiceActingScriptCommand}" />
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Edit">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Find in All Scripts…" Command="{Binding FindInScriptsCommand}" Gesture="Meta+Shift+F" />
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Window">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Reset Layout" Command="{Binding ResetPanelLayoutCommand}" />
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem>
+      <NativeMenuItem Header="Build">
+        <NativeMenuItem.Menu>
+          <NativeMenu>
+            <NativeMenuItem Header="Build Game" Command="{Binding BuildCommand}" Gesture="Meta+B" />
+            <NativeMenuItem Header="Run Game" Command="{Binding RunCommand}" Gesture="Meta+R" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Run with Debugger / Continue" Command="{Binding DebugCommand}" Gesture="F5" />
+            <NativeMenuItem Header="Step Into" Command="{Binding StepIntoCommand}" Gesture="F11" />
+            <NativeMenuItem Header="Pause" Command="{Binding PauseDebuggingCommand}" />
+            <NativeMenuItem Header="Stop Debugging" Command="{Binding StopDebuggingCommand}" Gesture="Shift+F5" />
+            <NativeMenuItemSeparator />
+            <NativeMenuItem Header="Build macOS App" Command="{Binding BuildMacAppCommand}" Gesture="Meta+Shift+B" />
+          </NativeMenu>
+        </NativeMenuItem.Menu>
+      </NativeMenuItem>
+    </NativeMenu>
+  </NativeMenu.Menu>
+
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Toolbar (icons are hidden in the classic look; Styles/MacLook.axaml shows them above the labels) -->
+    <Border Grid.Row="0" Classes="toolbar-bar" Padding="8,6" BorderThickness="0,0,0,1">
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <Button Classes="toolbar" Command="{Binding OpenProjectCommand}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M3.5,7.5 A2,2 0 0 1 5.5,5.5 L9.5,5.5 L11.5,7.5 L18.5,7.5 A2,2 0 0 1 20.5,9.5 L20.5,17 A2,2 0 0 1 18.5,19 L5.5,19 A2,2 0 0 1 3.5,17 Z M3.5,10.5 L20.5,10.5" />
+            <TextBlock Text="Open…" />
+          </StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding SaveCommand}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M12,4 L12,14 M8,10 L12,14 L16,10 M4.5,14.5 L4.5,18 A1.5,1.5 0 0 0 6,19.5 L18,19.5 A1.5,1.5 0 0 0 19.5,18 L19.5,14.5" />
+            <TextBlock Text="Save" />
+          </StackPanel>
+        </Button>
+        <Border Width="12" />
+        <Button Classes="toolbar" Command="{Binding BuildCommand}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M13.5,4.5 L19.5,10.5 L17.5,12.5 L11.5,6.5 Z M12.5,9.5 L4.8,17.2 A1.4,1.4 0 0 0 6.8,19.2 L14.5,11.5 M13.5,4.5 C12,3.6 10,3.6 8.5,4.5" />
+            <TextBlock Text="Build" />
+          </StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding RunCommand}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M8,5.5 L8,18.5 L18.5,12 Z" Filled="True" />
+            <TextBlock Text="Run" />
+          </StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding DebugCommand}" ToolTip.Tip="Run with the debugger, or continue (F5)" Margin="8,0,0,0">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M12,8.5 C14.8,8.5 16.5,10.8 16.5,14 C16.5,17.4 14.6,20 12,20 C9.4,20 7.5,17.4 7.5,14 C7.5,10.8 9.2,8.5 12,8.5 Z M12,8.5 L12,20 M9.2,8 A2.8,2.8 0 0 1 14.8,8 M7.5,13 L4,12 M16.5,13 L20,12 M7.8,16.5 L4.5,18 M16.2,16.5 L19.5,18 M9.5,6 L7.5,4 M14.5,6 L16.5,4" />
+            <TextBlock Text="Debug" />
+          </StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding StepIntoCommand}" ToolTip.Tip="Step into (F11)" IsVisible="{Binding IsDebugging}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M4,12 L15,12 M11,8 L15,12 L11,16 M19,5 L19,19" />
+            <TextBlock Text="Step" />
+          </StackPanel>
+        </Button>
+        <Button Classes="toolbar" Command="{Binding StopDebuggingCommand}" ToolTip.Tip="Stop debugging (⇧F5)" IsVisible="{Binding IsDebugging}">
+          <StackPanel>
+            <views:LineIcon Classes="toolbar-icon" Data="M8,6.5 L16,6.5 A1.5,1.5 0 0 1 17.5,8 L17.5,16 A1.5,1.5 0 0 1 16,17.5 L8,17.5 A1.5,1.5 0 0 1 6.5,16 L6.5,8 A1.5,1.5 0 0 1 8,6.5 Z" Filled="True" />
+            <TextBlock Text="Stop" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Border>
+
+    <!-- Dockable panels (Dock.Avalonia): project tree, documents, properties, output -->
+    <DockControl x:Name="DockHost" Grid.Row="1" InitializeFactory="True" InitializeLayout="True" />
+
+
+    <!-- Status bar -->
+    <Border Grid.Row="2" Padding="10,3" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <TextBlock Text="{Binding StatusText}" FontSize="11" Opacity="0.75" />
+    </Border>
+  </Grid>
+</Window>

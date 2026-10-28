@@ -1,0 +1,84 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             x:Class="AGS.Editor.Avalonia.Views.ViewEditorView"
+             x:DataType="vm:ViewEditorDocument">
+  <DockPanel Margin="8">
+    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+      <Button Content="New loop" Click="OnNewLoop" Margin="0,0,4,0" />
+      <Button Content="Delete last loop" Click="OnDeleteLoop" IsEnabled="{Binding CanDeleteLoop}" Margin="0,0,16,0" />
+      <Button Content="Insert before" Click="OnInsertBefore" IsEnabled="{Binding HasSelection}" Margin="0,0,4,0" />
+      <Button Content="Insert after" Click="OnInsertAfter" IsEnabled="{Binding HasSelection}" Margin="0,0,4,0" />
+      <Button Content="Delete frame" Click="OnDeleteFrame" IsEnabled="{Binding HasSelection}" Margin="0,0,4,0" />
+      <Button Content="Flip frame" Click="OnFlip" IsEnabled="{Binding HasSelection}" Margin="0,0,4,0" />
+      <Button Content="Reverse loop" Click="OnReverse" Margin="0,0,4,0" />
+    </WrapPanel>
+    <!-- Preview (ViewPreview) -->
+    <Border DockPanel.Dock="Right" Width="220" Margin="8,0,0,0" Padding="8" BorderThickness="1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Preview" FontWeight="SemiBold" />
+        <CheckBox Content="Animate selected loop" IsChecked="{Binding Animate}" />
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="Speed" VerticalAlignment="Center" />
+          <NumericUpDown Value="{Binding PreviewSpeed}" Minimum="0" Maximum="100" FormatString="0" Width="110" />
+        </StackPanel>
+        <Border Background="#30808080" Height="200">
+          <Image Source="{Binding PreviewImage}" Stretch="Uniform" StretchDirection="Both" MaxHeight="190"
+                 RenderOptions.BitmapInterpolationMode="None" RenderTransformOrigin="0.5,0.5">
+            <Image.RenderTransform>
+              <ScaleTransform ScaleX="{Binding PreviewScaleX}" />
+            </Image.RenderTransform>
+          </Image>
+        </Border>
+        <TextBlock Text="{Binding PreviewText}" Opacity="0.7" TextWrapping="Wrap" />
+        <TextBlock Text="Click a frame to edit it, double-click to choose its sprite. Click a loop title to select the loop."
+                   Opacity="0.5" TextWrapping="Wrap" FontSize="11" />
+      </StackPanel>
+    </Border>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <ItemsControl ItemsSource="{Binding Loops}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="vm:LoopRow">
+            <StackPanel Margin="0,0,0,12">
+              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Margin="0,0,0,4" Cursor="Hand"
+                         PointerPressed="OnLoopTitlePressed" Background="Transparent" />
+              <StackPanel Orientation="Horizontal">
+                <ItemsControl ItemsSource="{Binding Frames}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:FrameTile">
+                      <Border Width="68" Height="86" Margin="0,0,4,0" Padding="2" BorderThickness="2" CornerRadius="3"
+                              Background="#30808080" PointerPressed="OnFramePressed"
+                              Classes.selected="{Binding IsSelected}">
+                        <Border.Styles>
+                          <Style Selector="Border.selected">
+                            <Setter Property="BorderBrush" Value="DodgerBlue" />
+                          </Style>
+                        </Border.Styles>
+                        <DockPanel>
+                          <TextBlock DockPanel.Dock="Bottom" Text="{Binding Caption}" FontSize="11" HorizontalAlignment="Center" />
+                          <Image Source="{Binding Image}" Stretch="Uniform" StretchDirection="Both"
+                                 RenderOptions.BitmapInterpolationMode="None" RenderTransformOrigin="0.5,0.5">
+                            <Image.RenderTransform>
+                              <ScaleTransform ScaleX="{Binding ScaleX}" />
+                            </Image.RenderTransform>
+                          </Image>
+                        </DockPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Content="+" Width="40" Height="86" FontSize="20" Click="OnNewFrame" ToolTip.Tip="New frame" />
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

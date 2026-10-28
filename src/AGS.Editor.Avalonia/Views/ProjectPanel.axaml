@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             x:Class="AGS.Editor.Avalonia.Views.ProjectPanel"
+             x:DataType="vm:MainWindowViewModel">
+      <DockPanel>
+        <TreeView x:Name="ProjectTree" ItemsSource="{Binding TreeRoots}" SelectedItem="{Binding SelectedNode}">
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem" x:DataType="vm:ProjectTreeNode">
+              <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            </Style>
+          </TreeView.Styles>
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate DataType="vm:ProjectTreeNode" ItemsSource="{Binding Children}">
+              <StackPanel Orientation="Horizontal" Spacing="6" Background="Transparent">
+                <StackPanel.ContextMenu>
+                  <ContextMenu ItemsSource="{Binding Actions}" IsVisible="{Binding HasActions}">
+                    <ContextMenu.ItemTemplate>
+                      <DataTemplate DataType="vm:TreeAction">
+                        <TextBlock Text="{Binding Header}" />
+                      </DataTemplate>
+                    </ContextMenu.ItemTemplate>
+                    <ContextMenu.Styles>
+                      <Style Selector="MenuItem" x:DataType="vm:TreeAction">
+                        <Setter Property="Command" Value="{Binding Command}" />
+                      </Style>
+                    </ContextMenu.Styles>
+                  </ContextMenu>
+                </StackPanel.ContextMenu>
+                <Image Source="{Binding Icon}" Width="16" Height="16" IsVisible="{Binding HasIcon}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Glyph}" Opacity="0.5" IsVisible="{Binding !HasIcon}" />
+                <TextBlock Text="{Binding Name}" />
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </DockPanel>
+</UserControl>

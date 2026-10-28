@@ -1,0 +1,91 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.Editor</RootNamespace>
+    <Description>UI-free editor logic: load, save, upgrade and build games.</Description>
+    <NoWarn>$(NoWarn);CS0618;CS0612</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AGS.Editor.Core.Tests" />
+  </ItemGroup>
+
+  <!-- Upstream editor sources compiled as-is (see docs/FORKED_FILES.md). -->
+  <ItemGroup>
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\ScriptGeneration.cs" Link="Upstream\Utils\ScriptGeneration.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\Validation.cs" Link="Upstream\Utils\Validation.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\AutoComplete.cs" Link="Upstream\AutoComplete.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\TextProcessingHelper.cs" Link="Upstream\TextProcessing\TextProcessingHelper.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\TranslationSourceProcessor.cs" Link="Upstream\TextProcessing\TranslationSourceProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\GameSpeechProcessor.cs" Link="Upstream\TextProcessing\GameSpeechProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\GameTextLine.cs" Link="Upstream\TextProcessing\GameTextLine.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\IGameTextProcessor.cs" Link="Upstream\TextProcessing\IGameTextProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\TranslationGenerator.cs" Link="Upstream\TextProcessing\TranslationGenerator.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\APITypeDef.cs" Link="Upstream\TextProcessing\APITypeDef.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\TextImporter.cs" Link="Upstream\TextProcessing\TextImporter.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\SpeechOnlyProcessor.cs" Link="Upstream\TextProcessing\SpeechOnlyProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Enums\FunctionCallType.cs" Link="Upstream\Enums\FunctionCallType.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\SpriteSheet.cs" Link="Upstream\Utils\SpriteSheet.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\TextImportProcessor.cs" Link="Upstream\TextProcessing\TextImportProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\BaseTextProcess.cs" Link="Upstream\TextProcessing\BaseTextProcess.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\SpeechLineProcessor.cs" Link="Upstream\TextProcessing\SpeechLineProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\VoiceActorScriptGenerator.cs" Link="Upstream\TextProcessing\VoiceActorScriptGenerator.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\TextProcessing\VoiceActorScriptProcessor.cs" Link="Upstream\TextProcessing\VoiceActorScriptProcessor.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Entities\DebugCallStack.cs" Link="Upstream\Entities\DebugCallStack.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\IncludeUtils.cs" Link="Upstream\Utils\IncludeUtils.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\ScriptParsing.cs" Link="Upstream\Utils\ScriptParsing.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Utils\DialogScriptConverter.cs" Link="Upstream\Utils\DialogScriptConverter.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\GUI\CustomPropertyBag.cs" Link="Upstream\GUI\CustomPropertyBag.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Enums\BackgroundAutoCompleteStatus.cs" Link="Upstream\Enums\BackgroundAutoCompleteStatus.cs" />
+    <Compile Include="$(AgsEditorSrc)AGS.Editor\Entities\AutoCompleteParserState.cs" Link="Upstream\Entities\AutoCompleteParserState.cs" />
+  </ItemGroup>
+
+  <!-- See Directory.Build.targets and docs/FORKED_FILES.md. -->
+  <ItemGroup>
+    <AgsSourceRewrite Include="portable-invalid-filename-chars"
+                      Pattern="Path\.GetInvalidFileNameChars\(\)"
+                      ReplaceWith="global::AGS.Editor.PortablePaths.InvalidFileNameChars" />
+    <AgsSourceRewrite Include="portable-invalid-path-chars"
+                      Pattern="Path\.GetInvalidPathChars\(\)"
+                      ReplaceWith="global::AGS.Editor.PortablePaths.InvalidPathChars" />
+    <AgsSourceRewrite Include="resource-text"
+                      Pattern="Resources\.ResourceManager\.GetResourceAsString"
+                      ReplaceWith="global::AGS.Editor.EditorResources.ReadText" />
+    <AgsSourceRewrite Include="no-remoting-using"
+                      Pattern="using System\.Runtime\.Remoting\.Contexts;"
+                      ReplaceWith="" />
+    <!-- Upstream bug: GameSpeechProcessor.ProcessScript replaces a string in `script` but keeps parsing the old
+         text through its ParserState, so changing processors (make default language, speech numbering) read at
+         wrong positions (exceptions, endless loops). Re-create the parser state on the new text. -->
+    <AgsSourceRewrite Include="speech-processor-reparse"
+                      Pattern="state\.SetAt\(stringStartIndex \+ modifiedString\.Length \+ 1\);"
+                      ReplaceWith="state = _parserState = global::AGS.Editor.ParserStateFix.Rebuild(script, originalLine, stringStartIndex + modifiedString.Length + 1);" />
+    <AgsSourceRewrite Include="spritesheet-image"
+                      Pattern="SelectionFitsWithinBitmap\(Rectangle selection, Bitmap bmp\)"
+                      ReplaceWith="SelectionFitsWithinBitmap(Rectangle selection, global::AGS.Imaging.IImage bmp)" />
+    <AgsSourceRewrite Include="process-all-game-texts-hook"
+                      Pattern="Factory\.AGSEditor\.RunProcessAllGameTextsEvent"
+                      ReplaceWith="global::AGS.Editor.TextProcessingHooks.RunProcessAllGameTextsEvent" />
+  </ItemGroup>
+
+  <!-- Upstream editor resources needed by the logic (same logical names as upstream). -->
+  <ItemGroup>
+    <EmbeddedResource Include="$(AgsEditorSrc)AGS.Editor\Resources\AGSFNT*.WFN"
+                      LogicalName="AGS.Editor.Resources.%(Filename)%(Extension)"
+                      Link="Upstream\Resources\%(Filename)%(Extension)" />
+    <EmbeddedResource Include="$(AgsEditorSrc)AGS.Editor\Resources\__DialogScripts.asc"
+                      LogicalName="AGS.Editor.Resources.__DialogScripts.asc"
+                      Link="Upstream\Resources\__DialogScripts.asc" />
+    <EmbeddedResource Include="$(AgsEditorSrc)AGS.Editor\Resources\agsdefns.sh"
+                      LogicalName="AGS.Editor.Resources.agsdefns.sh"
+                      Link="Upstream\Resources\agsdefns.sh" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Types.Core/AGS.Types.Core.csproj" />
+    <ProjectReference Include="../AGS.Imaging/AGS.Imaging.csproj" />
+    <ProjectReference Include="../AGS.Native.Interop/AGS.Native.Interop.csproj" />
+    <ProjectReference Include="../AGS.CScript.Compiler/AGS.CScript.Compiler.csproj" />
+  </ItemGroup>
+
+</Project>

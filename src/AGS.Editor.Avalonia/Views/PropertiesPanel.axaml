@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             x:Class="AGS.Editor.Avalonia.Views.PropertiesPanel"
+             x:DataType="vm:MainWindowViewModel">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Text="{Binding PropertiesTitle}" FontWeight="SemiBold" Margin="10,8" TextTrimming="CharacterEllipsis" />
+        <TabStrip DockPanel.Dock="Top" ItemsSource="{Binding PropertyGrid.Tabs}" IsVisible="{Binding PropertyGrid.HasTabs}"
+                  SelectedIndex="{Binding PropertyGrid.SelectedTabIndex}" Margin="6,0,6,4" />
+        <views:PropertyGridView DataContext="{Binding PropertyGrid}" />
+      </DockPanel>
+</UserControl>

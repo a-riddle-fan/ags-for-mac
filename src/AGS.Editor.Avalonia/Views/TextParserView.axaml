@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             xmlns:core="using:AGS.Editor"
+             x:Class="AGS.Editor.Avalonia.Views.TextParserView"
+             x:DataType="vm:TextParserDocument">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+      <Button Content="Add new word" Click="OnParserAddWord" />
+      <Button Content="Add synonym" Click="OnParserAddSynonym" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Button Content="Delete word" Click="OnParserDelete" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <TextBlock Text="Find" VerticalAlignment="Center" Margin="12,0,0,0" />
+      <TextBox Text="{Binding FindText}" Width="180" />
+      <TextBlock Text="Edit the selected word in the property grid." Opacity="0.6" VerticalAlignment="Center" Margin="12,0,0,0" />
+    </StackPanel>
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="110,260,*" Margin="12,0,0,4">
+      <TextBlock Text="Word group" FontWeight="SemiBold" />
+      <TextBlock Grid.Column="1" Text="Word" FontWeight="SemiBold" />
+      <TextBlock Grid.Column="2" Text="Type" FontWeight="SemiBold" />
+    </Grid>
+    <ListBox ItemsSource="{Binding Words}" SelectedItem="{Binding Selected}">
+      <ListBox.ItemTemplate>
+        <DataTemplate DataType="vm:TextParserWordRow">
+          <Grid ColumnDefinitions="110,260,*">
+            <TextBlock Text="{Binding Group}" />
+            <TextBlock Grid.Column="1" Text="{Binding Text}" />
+            <TextBlock Grid.Column="2" Text="{Binding Type}" />
+          </Grid>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

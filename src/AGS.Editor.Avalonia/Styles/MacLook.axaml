@@ -1,0 +1,171 @@
+<!--
+  The macOS look (default; Settings → Appearance switches to the classic look): toolbar with icons above small labels, a sidebar-style project tree,
+  quieter headers and separators, the system font, light and dark variants. Purely visual: no effect on the
+  project files or on the editor's behaviour.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:AGS.Editor.Avalonia.Views">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="MacWindowBackground" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="MacToolbarBackground" Color="#F6F5F4" />
+          <SolidColorBrush x:Key="MacSidebarBackground" Color="#EBEAE9" />
+          <SolidColorBrush x:Key="MacSeparator" Color="#DAD9D8" />
+          <SolidColorBrush x:Key="MacSecondaryText" Color="#6E6E73" />
+          <SolidColorBrush x:Key="MacHover" Color="#14000000" />
+          <SolidColorBrush x:Key="MacPressed" Color="#26000000" />
+          <SolidColorBrush x:Key="MacSelection" Color="#0A64D8" />
+          <SolidColorBrush x:Key="MacSelectionText" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="MacOutputBackground" Color="#FAFAFA" />
+          <!-- selected rows in trees: the macOS accent selection -->
+          <SolidColorBrush x:Key="TreeViewItemBackgroundSelected" Color="#0A64D8" />
+          <SolidColorBrush x:Key="TreeViewItemBackgroundSelectedPointerOver" Color="#0A64D8" />
+          <SolidColorBrush x:Key="TreeViewItemForegroundSelected" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TreeViewItemForegroundSelectedPointerOver" Color="#FFFFFF" />
+          <!-- dock panels and document tabs -->
+          <SolidColorBrush x:Key="DockSurfaceWorkbenchBrush" Color="#F6F5F4" />
+          <SolidColorBrush x:Key="DockSurfaceSidebarBrush" Color="#EBEAE9" />
+          <SolidColorBrush x:Key="DockSurfacePanelBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="#F6F5F4" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="#ECEBEA" />
+          <SolidColorBrush x:Key="DockDocumentTabStripBackgroundBrush" Color="#F6F5F4" />
+          <SolidColorBrush x:Key="DockTabBackgroundBrush" Color="#00000000" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="#14000000" />
+          <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="DockTabForegroundBrush" Color="#6E6E73" />
+          <SolidColorBrush x:Key="DockTabActiveForegroundBrush" Color="#1D1D1F" />
+          <SolidColorBrush x:Key="DockTabSelectedForegroundBrush" Color="#1D1D1F" />
+          <SolidColorBrush x:Key="DockDocumentTabSelectedForegroundBrush" Color="#1D1D1F" />
+          <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="#0A64D8" />
+          <SolidColorBrush x:Key="DockThemeAccentBrush" Color="#0A64D8" />
+          <SolidColorBrush x:Key="DockSeparatorBrush" Color="#DAD9D8" />
+          <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="#DAD9D8" />
+          <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="#CFCECD" />
+          <SolidColorBrush x:Key="DockSplitterHoverBrush" Color="#A0A0A5" />
+          <SolidColorBrush x:Key="DockSplitterDragBrush" Color="#0A64D8" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="MacWindowBackground" Color="#1E1E1E" />
+          <SolidColorBrush x:Key="MacToolbarBackground" Color="#2C2C2E" />
+          <SolidColorBrush x:Key="MacSidebarBackground" Color="#2B2B2E" />
+          <SolidColorBrush x:Key="MacSeparator" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="MacSecondaryText" Color="#98989D" />
+          <SolidColorBrush x:Key="MacHover" Color="#1FFFFFFF" />
+          <SolidColorBrush x:Key="MacPressed" Color="#33FFFFFF" />
+          <SolidColorBrush x:Key="MacSelection" Color="#0A5FCC" />
+          <SolidColorBrush x:Key="MacSelectionText" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="MacOutputBackground" Color="#232325" />
+          <!-- selected rows in trees: the macOS accent selection -->
+          <SolidColorBrush x:Key="TreeViewItemBackgroundSelected" Color="#0A5FCC" />
+          <SolidColorBrush x:Key="TreeViewItemBackgroundSelectedPointerOver" Color="#0A5FCC" />
+          <SolidColorBrush x:Key="TreeViewItemForegroundSelected" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="TreeViewItemForegroundSelectedPointerOver" Color="#FFFFFF" />
+          <!-- dock panels and document tabs -->
+          <SolidColorBrush x:Key="DockSurfaceWorkbenchBrush" Color="#242426" />
+          <SolidColorBrush x:Key="DockSurfaceSidebarBrush" Color="#2B2B2E" />
+          <SolidColorBrush x:Key="DockSurfacePanelBrush" Color="#1E1E1E" />
+          <SolidColorBrush x:Key="DockSurfaceEditorBrush" Color="#1E1E1E" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderBrush" Color="#2C2C2E" />
+          <SolidColorBrush x:Key="DockSurfaceHeaderActiveBrush" Color="#333336" />
+          <SolidColorBrush x:Key="DockDocumentTabStripBackgroundBrush" Color="#2C2C2E" />
+          <SolidColorBrush x:Key="DockTabBackgroundBrush" Color="#00000000" />
+          <SolidColorBrush x:Key="DockTabHoverBackgroundBrush" Color="#1FFFFFFF" />
+          <SolidColorBrush x:Key="DockTabActiveBackgroundBrush" Color="#1E1E1E" />
+          <SolidColorBrush x:Key="DockTabForegroundBrush" Color="#98989D" />
+          <SolidColorBrush x:Key="DockTabActiveForegroundBrush" Color="#F5F5F7" />
+          <SolidColorBrush x:Key="DockTabSelectedForegroundBrush" Color="#F5F5F7" />
+          <SolidColorBrush x:Key="DockDocumentTabSelectedForegroundBrush" Color="#F5F5F7" />
+          <SolidColorBrush x:Key="DockTabActiveIndicatorBrush" Color="#0A84FF" />
+          <SolidColorBrush x:Key="DockThemeAccentBrush" Color="#0A84FF" />
+          <SolidColorBrush x:Key="DockSeparatorBrush" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="DockBorderSubtleBrush" Color="#3A3A3C" />
+          <SolidColorBrush x:Key="DockSplitterIdleBrush" Color="#454548" />
+          <SolidColorBrush x:Key="DockSplitterHoverBrush" Color="#6E6E73" />
+          <SolidColorBrush x:Key="DockSplitterDragBrush" Color="#0A84FF" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <!-- system font (Helvetica Neue where the system font isn't reachable by name) -->
+  <Style Selector="Window">
+    <Setter Property="FontFamily" Value=".AppleSystemUIFont, Helvetica Neue, Inter" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Background" Value="{DynamicResource MacWindowBackground}" />
+  </Style>
+
+  <!-- toolbar: borderless buttons, icon above a small label -->
+  <Style Selector="Border.toolbar-bar">
+    <Setter Property="Background" Value="{DynamicResource MacToolbarBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource MacSeparator}" />
+    <Setter Property="Padding" Value="10,4" />
+  </Style>
+  <Style Selector="Button.toolbar">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="MinWidth" Value="52" />
+  </Style>
+  <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MacHover}" />
+  </Style>
+  <Style Selector="Button.toolbar:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource MacPressed}" />
+  </Style>
+  <Style Selector="Button.toolbar:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.toolbar StackPanel">
+    <Setter Property="Orientation" Value="Vertical" />
+    <Setter Property="Spacing" Value="2" />
+  </Style>
+  <Style Selector="Button.toolbar TextBlock">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource MacSecondaryText}" />
+  </Style>
+  <Style Selector="views|LineIcon.toolbar-icon">
+    <Setter Property="IsVisible" Value="True" />
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.toolbar:disabled views|LineIcon.toolbar-icon">
+    <Setter Property="Opacity" Value="0.35" />
+  </Style>
+
+  <!-- project tree as a sidebar: tinted background, rounded selection -->
+  <Style Selector="views|ProjectPanel">
+    <Setter Property="Background" Value="{DynamicResource MacSidebarBackground}" />
+  </Style>
+  <Style Selector="views|ProjectPanel TreeView">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="views|ProjectPanel TreeViewItem /template/ Border#PART_LayoutRoot">
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Margin" Value="6,1" />
+  </Style>
+
+  <!-- quieter panel titles, output and status bar -->
+  <Style Selector="views|PropertiesPanel TextBlock.panel-title, views|PropertiesPanel > DockPanel > TextBlock">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource MacSecondaryText}" />
+  </Style>
+  <Style Selector="views|PropertiesPanel TabStripItem">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="MinHeight" Value="26" />
+    <Setter Property="Padding" Value="10,2" />
+  </Style>
+  <Style Selector="views|OutputPanel TextBox">
+    <Setter Property="Background" Value="{DynamicResource MacOutputBackground}" />
+  </Style>
+  <Style Selector="GridSplitter">
+    <Setter Property="Background" Value="{DynamicResource MacSeparator}" />
+  </Style>
+</Styles>

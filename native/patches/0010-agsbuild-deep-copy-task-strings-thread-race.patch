@@ -1,0 +1,60 @@
+agsbuild: deep-copy task strings to avoid a reference count race
+
+AGS::Common::String shares its buffer between copies with a reference count
+that is not thread-safe. TaskPipedProcess and TaskDeleteFiles kept shallow
+copies of their parameters, so the tool paths (e.g. the agscc path, shared by
+every script compile task) were copied and released concurrently on the worker
+threads. The count went wrong and agsbuild sporadically crashed with SIGSEGV
+in ~Task / ~TaskManager after the build had finished.
+
+Clone the params and file lists like the other tasks already do for their
+names, inputs and lists.
+
+Upstream PR: not opened yet (branch fix-agsbuild-params-thread-race in the fork).
+
+diff --git a/Tools/agsbuild/taskmanager.cpp b/Tools/agsbuild/taskmanager.cpp
+index 2c20fa492..0e8d13e22 100644
+--- a/Tools/agsbuild/taskmanager.cpp
++++ b/Tools/agsbuild/taskmanager.cpp
+@@ -257,16 +257,23 @@ HError TaskWriteStringList::RunImpl()
+ // TaskPipedProcess
+ //-----------------------------------------------------------------------------
+ 
++// The params are deep-copied: String's reference count is not thread-safe, and the tool paths
++// are shared by many tasks which copy them on their own threads.
++static PipedProcessParams Clone(const PipedProcessParams &params)
++{
++    return PipedProcessParams(params.ExePath.Clone(), params.Params.Clone(), params.OutputToStdOut);
++}
++
+ TaskPipedProcess::TaskPipedProcess(const String &name, ITaskManager *mgr, const PipedProcessParams &params)
+     : Task(name, mgr)
+-    , _params(params)
++    , _params(Clone(params))
+ {
+ }
+ 
+ TaskPipedProcess::TaskPipedProcess(const String &name, ITaskManager *mgr, const PipedProcessParams &params,
+     const std::vector<TaskInput> &input_tasks)
+     : Task(name, mgr, input_tasks)
+-    , _params(params)
++    , _params(Clone(params))
+ {
+ }
+ 
+diff --git a/Tools/agsbuild/taskmanager.h b/Tools/agsbuild/taskmanager.h
+index 1451fcf86..3cce0d844 100644
+--- a/Tools/agsbuild/taskmanager.h
++++ b/Tools/agsbuild/taskmanager.h
+@@ -151,9 +151,9 @@ class TaskDeleteFiles : public Task
+ {
+ public:
+     TaskDeleteFiles(const String &name, ITaskManager *mgr, const std::vector<String> &files)
+-        : Task(name, mgr), _files(files) {}
++        : Task(name, mgr), _files(Clone(files)) {}
+     TaskDeleteFiles(const String &name, ITaskManager *mgr, const std::vector<String> &files, const std::vector<TaskInput> &input_tasks)
+-        : Task(name, mgr, input_tasks), _files(files) {}
++        : Task(name, mgr, input_tasks), _files(Clone(files)) {}
+ private:
+     HError RunImpl() override;
+ 

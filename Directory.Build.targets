@@ -1,0 +1,114 @@
+<Project>
+  <!--
+    ags4mac: compile-time source rewrites for upstream files compiled in place.
+
+    A project declares regex rewrites, e.g.
+      <AgsSourceRewrite Include="ansi-encoding" Pattern="..." ReplaceWith="..." />
+    Before compiling, every Compile item under $(AgsRoot) that matches a pattern is copied to
+    $(IntermediateOutputPath)ags-rewritten/ with the replacements applied, and the copy is compiled
+    instead. A #line directive maps diagnostics and debugging back to the upstream file. Rewrites
+    must not add or remove lines. A rewrite that matches nothing produces a warning, so upstream
+    changes don't go unnoticed.
+
+    Use this for small mechanical fixes that would otherwise force forking many files. Anything
+    larger goes into a fork under Forked/ (see docs/FORKED_FILES.md).
+  -->
+  <UsingTask TaskName="AgsRewriteSources"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Sources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Rewrites ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <OutputDir ParameterType="System.String" Required="true" />
+      <RewrittenSources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+      <ReplacedSources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var rewritten = new List<ITaskItem>();
+        var replaced = new List<ITaskItem>();
+        var rules = new List<Tuple<string, Regex, string>>();
+        var hits = new Dictionary<string, int>();
+        foreach (ITaskItem rw in Rewrites)
+        {
+            rules.Add(Tuple.Create(rw.ItemSpec, new Regex(rw.GetMetadata("Pattern"), RegexOptions.Multiline), rw.GetMetadata("ReplaceWith")));
+            hits[rw.ItemSpec] = 0;
+        }
+
+        foreach (ITaskItem src in Sources)
+        {
+            string path = src.GetMetadata("FullPath");
+            string text = File.ReadAllText(path);
+            string newText = text;
+            foreach (var rule in rules)
+            {
+                int count = rule.Item2.Matches(newText).Count;
+                if (count == 0) continue;
+                hits[rule.Item1] += count;
+                newText = rule.Item2.Replace(newText, rule.Item3);
+            }
+            if (newText == text) continue;
+
+            if (newText.Split('\n').Length != text.Split('\n').Length)
+            {
+                Log.LogError("ags4mac source rewrite changed the line count of {0}; rewrites must stay on one line.", path);
+                continue;
+            }
+
+            string link = src.GetMetadata("Link");
+            if (string.IsNullOrEmpty(link)) link = Path.GetFileName(path);
+            string outPath = Path.Combine(OutputDir, link.Replace('\\', '/'));
+            string output = "// ags4mac: generated from " + path + " by AgsSourceRewrite; do not edit.\n"
+                          + "#line 1 \"" + path + "\"\n" + newText;
+            Directory.CreateDirectory(Path.GetDirectoryName(outPath));
+            if (!File.Exists(outPath) || File.ReadAllText(outPath) != output)
+                File.WriteAllText(outPath, output, new UTF8Encoding(true));
+
+            var item = new TaskItem(outPath);
+            src.CopyMetadataTo(item);
+            item.SetMetadata("Link", link);
+            rewritten.Add(item);
+            replaced.Add(src);
+        }
+
+        foreach (var kv in hits)
+        {
+            if (kv.Value == 0)
+                Log.LogWarning("ags4mac source rewrite '{0}' matched nothing; check whether upstream changed.", kv.Key);
+            else
+                Log.LogMessage(MessageImportance.Low, "ags4mac source rewrite '{0}': {1} replacement(s).", kv.Key, kv.Value);
+        }
+
+        RewrittenSources = rewritten.ToArray();
+        ReplacedSources = replaced.ToArray();
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="AgsRewriteUpstreamSources"
+          BeforeTargets="CoreCompile"
+          Condition="'@(AgsSourceRewrite)' != ''">
+    <ItemGroup>
+      <_AgsUpstreamCompile Include="@(Compile)"
+                           Condition="$([System.String]::Copy('%(Compile.FullPath)').StartsWith('$(AgsRoot)'))" />
+    </ItemGroup>
+
+    <AgsRewriteSources Sources="@(_AgsUpstreamCompile)"
+                       Rewrites="@(AgsSourceRewrite)"
+                       OutputDir="$(ProjectDir)$(IntermediateOutputPath)ags-rewritten">
+      <Output TaskParameter="RewrittenSources" ItemName="_AgsRewrittenCompile" />
+      <Output TaskParameter="ReplacedSources" ItemName="_AgsReplacedCompile" />
+    </AgsRewriteSources>
+
+    <ItemGroup>
+      <Compile Remove="@(_AgsReplacedCompile)" />
+      <Compile Include="@(_AgsRewrittenCompile)" />
+      <FileWrites Include="@(_AgsRewrittenCompile)" />
+    </ItemGroup>
+  </Target>
+</Project>

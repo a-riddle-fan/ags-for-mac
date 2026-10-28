@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AGS.Imaging.Magick</RootNamespace>
+    <Description>ImageMagick (Magick.NET, as used by the upstream editor) image codecs: GIF (animated), JPEG, TIFF and fallbacks.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="15.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Imaging/AGS.Imaging.csproj" />
+  </ItemGroup>
+
+</Project>

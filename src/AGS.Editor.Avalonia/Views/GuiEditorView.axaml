@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             x:Class="AGS.Editor.Avalonia.Views.GuiEditorView"
+             x:DataType="vm:GuiEditorDocument">
+  <DockPanel Margin="8">
+    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+      <TextBlock Text="Zoom" VerticalAlignment="Center" Margin="0,0,4,0" />
+      <ComboBox ItemsSource="{Binding ZoomLevels}" SelectedItem="{Binding Zoom}" MinWidth="64" Margin="0,0,12,0" />
+      <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsTextWindow}">
+        <TextBlock Text="Add" VerticalAlignment="Center" />
+        <Button Content="Button" Click="OnAdd" Tag="Button" />
+        <Button Content="Label" Click="OnAdd" Tag="Label" />
+        <Button Content="Text box" Click="OnAdd" Tag="TextBox" />
+        <Button Content="List box" Click="OnAdd" Tag="ListBox" />
+        <Button Content="Slider" Click="OnAdd" Tag="Slider" />
+        <Button Content="Inventory" Click="OnAdd" Tag="InvWindow" />
+        <Button Content="Delete" Click="OnDelete" Margin="12,0,0,0"
+                IsEnabled="{Binding SelectedControl, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <Button Content="Bring to Front" Click="OnFront"
+                IsEnabled="{Binding SelectedControl, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <Button Content="Send to Back" Click="OnBack"
+                IsEnabled="{Binding SelectedControl, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      </StackPanel>
+    </WrapPanel>
+    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6" IsVisible="{Binding !IsTextWindow}">
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <TextBlock Text="Selection" VerticalAlignment="Center" />
+        <Button Content="Align Left" Click="OnAlignLeft" ToolTip.Tip="Align to the last selected control (⇧/⌘-click to select several)" />
+        <Button Content="Align Top" Click="OnAlignTop" />
+        <Button Content="Distribute ↔" Click="OnDistributeH" ToolTip.Tip="Even horizontal spacing (3 or more controls)" />
+        <Button Content="Distribute ↕" Click="OnDistributeV" ToolTip.Tip="Even vertical spacing (3 or more controls)" />
+        <Button Content="Copy" Click="OnCopy" Margin="12,0,0,0" ToolTip.Tip="⌘C" />
+        <Button Content="Paste" Click="OnPaste" ToolTip.Tip="⌘V — at the mouse position" />
+      </StackPanel>
+    </WrapPanel>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
+      <TextBlock Text="{Binding SelectionText}" FontWeight="SemiBold" />
+      <TextBlock x:Name="Coordinates" Opacity="0.7" />
+      <TextBlock Text="Drag to move, drag the corner handle to resize." Opacity="0.5" />
+    </StackPanel>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#30808080">
+      <views:GuiCanvas x:Name="Canvas" HorizontalAlignment="Left" VerticalAlignment="Top" Cursor="Arrow" />
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

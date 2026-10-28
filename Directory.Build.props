@@ -1,0 +1,18 @@
+<Project>
+  <!-- Shared settings for all ags4mac .NET projects. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <!-- Upstream AGS sources are linked in verbatim; they predate nullable refs and use explicit usings. -->
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+
+    <!-- Location of the upstream AGS checkout. -->
+    <AgsRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'ags'))</AgsRoot>
+    <AgsEditorSrc>$([MSBuild]::NormalizeDirectory('$(AgsRoot)', 'Editor'))</AgsEditorSrc>
+    <!-- Where libagsnative.dylib is built to (step 1.5). -->
+    <AgsNativeOut>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'build', 'native'))</AgsNativeOut>
+  </PropertyGroup>
+</Project>

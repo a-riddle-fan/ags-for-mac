@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             x:Class="AGS.Editor.Avalonia.Views.OutputPanel"
+             x:DataType="vm:MainWindowViewModel">
+    <DockPanel>
+      <ListBox x:Name="ErrorList" DockPanel.Dock="Top" ItemsSource="{Binding Errors}" IsVisible="{Binding HasErrors}"
+               MaxHeight="96" Margin="6,0,6,4">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="types:CompileMessage">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="⛔" />
+              <TextBlock Text="{Binding ScriptName}" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding LineNumber, StringFormat='line {0}'}" Opacity="0.7" />
+              <TextBlock Text="{Binding Message}" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+      <TextBox x:Name="OutputBox" Text="{Binding OutputText}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+               FontFamily="Menlo, Monaco, monospace" FontSize="11" BorderThickness="0" />
+    </DockPanel>
+</UserControl>

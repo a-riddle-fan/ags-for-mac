@@ -1,0 +1,77 @@
+// ags4mac: forked from ags/Editor/AGS.Types/PropertyGridExtras/PropertyTabInteractions.cs.
+// WinForms PropertyTab base and tab Bitmap replaced by AgsPropertyTab.
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Reflection;
+using System.Text;
+
+namespace AGS.Types
+{
+    public class PropertyTabInteractions : AgsPropertyTab
+    {
+        public delegate string UpdateEventNameHandler(string eventName);
+        public static UpdateEventNameHandler UpdateEventName;
+
+        public override string TabName
+        {
+            get
+            {
+                return "Events";
+            }
+        }
+
+        public override PropertyDescriptorCollection GetProperties(object component, Attribute[] attrs)
+        {
+            return GetProperties(null, component, attrs);
+        }
+
+        public override PropertyDescriptorCollection GetProperties(ITypeDescriptorContext context, object component, Attribute[] attrs)
+        {
+            List<PropertyDescriptor> propList = new List<PropertyDescriptor>();
+
+            PropertyInfo interactionsProperty = component.GetType().GetProperty("Interactions");
+            if (interactionsProperty != null)
+            {
+                Interactions interactions = (Interactions)interactionsProperty.GetValue(component, null);
+                if (interactions.Schema.ScriptModuleFixed)
+                {
+                    propList.Add(new InteractionPropertyDescriptor(component, "ScriptModule",
+                        new Attribute[] {
+                            new CategoryAttribute("(Basic)"),
+                            new DefaultValueAttribute(interactions.Schema.DefaultScriptModule),
+                            new ReadOnlyAttribute(true)
+                        }, true));
+                }
+                else
+                {
+                    propList.Add(new InteractionPropertyDescriptor(component, "ScriptModule",
+                        new Attribute[] {
+                            new CategoryAttribute("(Basic)"),
+                            new DefaultValueAttribute(interactions.Schema.DefaultScriptModule),
+                            new TypeConverterAttribute(typeof(ScriptListTypeConverter))
+                        }, false));
+                }
+                
+                for (int i = 0; i < interactions.FunctionSuffixes.Length; i++)
+                {
+                    string eventName = interactions.DisplayNames[i];
+                    if (UpdateEventName != null)
+                    {
+                        eventName = UpdateEventName(eventName);
+                    }
+					if (eventName.IndexOf("$$") < 0)
+					{
+						// Only add the event if the cursor mode exists
+						propList.Add(new InteractionEventPropertyDescriptor(component, i,
+                            interactions.FunctionSuffixes[i], eventName, interactions.FunctionParameterLists[i]));
+					}
+                }
+            }
+
+            return new PropertyDescriptorCollection(propList.ToArray());
+        }
+
+    }
+}

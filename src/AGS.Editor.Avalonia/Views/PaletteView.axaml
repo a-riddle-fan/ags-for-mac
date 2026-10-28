@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             xmlns:core="using:AGS.Editor"
+             x:Class="AGS.Editor.Avalonia.Views.PaletteView"
+             x:DataType="vm:PaletteDocument">
+  <ScrollViewer Margin="12">
+    <StackPanel Spacing="16">
+      <StackPanel Spacing="6">
+        <TextBlock Text="Colour finder" FontWeight="SemiBold" />
+        <TextBlock Text="Find the AGS colour number for a colour (used by colour properties and scripts), or the colour of a number."
+                   Opacity="0.7" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Spacing="16">
+          <Border Width="80" Height="80" Background="{Binding Preview}" BorderBrush="Gray" BorderThickness="1" />
+          <StackPanel Spacing="4">
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Red" Width="80" VerticalAlignment="Center" /><Slider Minimum="0" Maximum="255" Value="{Binding Red}" Width="200" /><NumericUpDown Value="{Binding Red}" Minimum="0" Maximum="255" FormatString="0" Width="120" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Green" Width="80" VerticalAlignment="Center" /><Slider Minimum="0" Maximum="255" Value="{Binding Green}" Width="200" /><NumericUpDown Value="{Binding Green}" Minimum="0" Maximum="255" FormatString="0" Width="120" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="Blue" Width="80" VerticalAlignment="Center" /><Slider Minimum="0" Maximum="255" Value="{Binding Blue}" Width="200" /><NumericUpDown Value="{Binding Blue}" Minimum="0" Maximum="255" FormatString="0" Width="120" /></StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="AGS colour" Width="80" VerticalAlignment="Center" /><NumericUpDown Value="{Binding ColourNumber}" Minimum="0" Maximum="65535" FormatString="0" Width="140" /><TextBlock Text="{Binding WebColour}" VerticalAlignment="Center" Margin="12,0,0,0" /></StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+      <StackPanel Spacing="6">
+        <TextBlock Text="Palette" FontWeight="SemiBold" />
+        <TextBlock Text="Only used by 256-colour games; click a slot to edit it in the property grid. Background slots are marked."
+                   Opacity="0.7" TextWrapping="Wrap" />
+        <ItemsControl ItemsSource="{Binding Slots}" Width="420" HorizontalAlignment="Left">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><UniformGrid Columns="16" /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:PaletteSlot">
+              <Border Height="24" Margin="1" Background="{Binding Brush}" BorderThickness="2" PointerPressed="OnPaletteSlotPressed"
+                      ToolTip.Tip="{Binding Index}" Classes.selected="{Binding IsSelected}" Classes.bg="{Binding IsBackground}">
+                <Border.Styles>
+                  <Style Selector="Border.selected"><Setter Property="BorderBrush" Value="DodgerBlue" /></Style>
+                  <Style Selector="Border.bg"><Setter Property="Opacity" Value="0.55" /></Style>
+                </Border.Styles>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

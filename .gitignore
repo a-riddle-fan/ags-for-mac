@@ -1,0 +1,18 @@
+# Upstream AGS checkout (its own git repository; clone it as described in README.md)
+/ags/
+
+# Reference game for the tests (public repository, see testdata/README.md)
+/testdata/Bernard-SP/
+
+# Build output
+/build/
+bin/
+obj/
+TestResults/
+
+# macOS / IDEs
+.DS_Store
+*.user
+.vs/
+.idea/
+.vscode/

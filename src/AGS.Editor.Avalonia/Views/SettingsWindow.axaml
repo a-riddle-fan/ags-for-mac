@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AGS.Editor.Avalonia.Views.SettingsWindow"
+        Title="Settings" Width="440" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <!-- Editor preferences of this Mac (settings.json in Application Support); changes apply at once.
+       Nothing here is stored in the game project. -->
+  <StackPanel Margin="24" Spacing="18">
+    <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto" >
+      <TextBlock Text="Look:" HorizontalAlignment="Right" Margin="0,6,12,0" />
+      <StackPanel Grid.Column="1" Spacing="6">
+        <RadioButton x:Name="MacLook" GroupName="look" Content="Mac" IsCheckedChanged="OnChanged" />
+        <RadioButton x:Name="ClassicLook" GroupName="look" Content="Classic" IsCheckedChanged="OnChanged" />
+        <TextBlock Text="Classic keeps the plainer look of the earlier versions, closer to the Windows editor."
+                   TextWrapping="Wrap" FontSize="11" Opacity="0.65" />
+      </StackPanel>
+    </Grid>
+    <Grid ColumnDefinitions="110,*">
+      <TextBlock Text="Appearance:" HorizontalAlignment="Right" Margin="0,6,12,0" />
+      <StackPanel Grid.Column="1" Spacing="6">
+        <RadioButton x:Name="SystemTheme" GroupName="theme" Content="Same as macOS" IsCheckedChanged="OnChanged" />
+        <RadioButton x:Name="LightTheme" GroupName="theme" Content="Light" IsCheckedChanged="OnChanged" />
+        <RadioButton x:Name="DarkTheme" GroupName="theme" Content="Dark" IsCheckedChanged="OnChanged" />
+      </StackPanel>
+    </Grid>
+  </StackPanel>
+</Window>

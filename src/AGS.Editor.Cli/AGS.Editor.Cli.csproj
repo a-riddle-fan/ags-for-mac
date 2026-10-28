@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AGS.Editor.Cli</RootNamespace>
+    <AssemblyName>ags-build</AssemblyName>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <Description>Headless AGS game builder (Phase 1 acceptance harness).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Editor.Core/AGS.Editor.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>AGS.Editor.Avalonia</RootNamespace>
+    <AssemblyName>AGSEditor</AssemblyName>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <Description>Adventure Game Studio editor for macOS (Avalonia UI).</Description>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="12.1.4" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="12.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Dock.Avalonia" Version="12.1.0.12" />
+    <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="12.1.0.12" />
+    <PackageReference Include="Dock.Model.Mvvm" Version="12.1.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Upstream editor icons (project tree etc.), used as-is. -->
+    <EmbeddedResource Include="$(AgsEditorSrc)AGS.Editor\Resources\*.ico" LogicalName="AGSEditor.Icons.%(Filename)%(Extension)" Link="Icons\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AGS.Editor.Avalonia.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AGS.Editor.Core/AGS.Editor.Core.csproj" />
+    <ProjectReference Include="../AGS.Imaging.Magick/AGS.Imaging.Magick.csproj" />
+  </ItemGroup>
+
+</Project>

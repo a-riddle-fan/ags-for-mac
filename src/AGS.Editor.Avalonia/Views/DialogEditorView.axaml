@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ae="using:AvaloniaEdit"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             x:Class="AGS.Editor.Avalonia.Views.DialogEditorView"
+             x:DataType="vm:DialogEditorDocument">
+  <Grid RowDefinitions="Auto,6,*" Margin="8">
+    <StackPanel Grid.Row="0" Spacing="4">
+      <Grid ColumnDefinitions="40,*,60,60" Margin="0,0,0,2">
+        <TextBlock Text="#" FontWeight="SemiBold" />
+        <TextBlock Grid.Column="1" Text="Option text" FontWeight="SemiBold" />
+        <TextBlock Grid.Column="2" Text="Show" FontWeight="SemiBold" />
+        <TextBlock Grid.Column="3" Text="Say" FontWeight="SemiBold" />
+      </Grid>
+      <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Options}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:DialogOptionRow">
+              <Grid ColumnDefinitions="40,*,60,60" Margin="0,1">
+                <TextBlock Text="{Binding ID}" VerticalAlignment="Center" />
+                <TextBox Grid.Column="1" Text="{Binding Text}" Margin="0,0,8,0" />
+                <CheckBox Grid.Column="2" IsChecked="{Binding Show}" ToolTip.Tip="Show this option at the start" />
+                <CheckBox Grid.Column="3" IsChecked="{Binding Say}" ToolTip.Tip="The player character says the option text" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <Button Content="New option" Click="OnNewOption" />
+        <Button Content="Delete last option" Click="OnDeleteOption" IsEnabled="{Binding CanDeleteOption}" />
+        <TextBlock Text="Dialog script below: @S runs at the start, @N when option N is chosen." VerticalAlignment="Center" Opacity="0.6" Margin="12,0,0,0" />
+      </StackPanel>
+    </StackPanel>
+    <GridSplitter Grid.Row="1" ResizeDirection="Rows" />
+    <ae:TextEditor Grid.Row="2" x:Name="Editor" FontFamily="Menlo, Monaco, monospace" FontSize="13" ShowLineNumbers="True"
+                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" />
+  </Grid>
+</UserControl>

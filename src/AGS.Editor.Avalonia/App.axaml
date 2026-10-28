@@ -1,0 +1,204 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="AGS.Editor.Avalonia.App"
+             Name="AGS Editor"
+             xmlns:dock="using:Dock.Avalonia.Themes.Fluent"
+             xmlns:vm="using:AGS.Editor.Avalonia.ViewModels"
+             xmlns:views="using:AGS.Editor.Avalonia.Views"
+             xmlns:types="using:AGS.Types"
+             xmlns:core="using:AGS.Editor"
+             RequestedThemeVariant="Default">
+  <!-- application menu (next to About / Hide / Quit) -->
+  <NativeMenu.Menu>
+    <NativeMenu>
+      <NativeMenuItem Header="Settings…" Gesture="Meta+OemComma" Click="OnSettingsMenuClick" />
+    </NativeMenu>
+  </NativeMenu.Menu>
+  <!-- Document and panel templates live here (not in the main window), so that panels moved into floating
+       windows find them too. Commands reach the main view model through the window's Tag
+       ($parent[Window].Tag), which the main window and floating windows both carry. -->
+  <Application.Styles>
+    <FluentTheme />
+    <dock:DockFluentTheme />
+    <!-- toolbar icons only appear in the Mac look (Styles/MacLook.axaml, switched in Settings) -->
+    <Style Selector="views|LineIcon.toolbar-icon">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="Border.toolbar-bar">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+    </Style>
+    <Style Selector="Button.toolbar StackPanel">
+      <Setter Property="Orientation" Value="Horizontal" />
+      <Setter Property="Spacing" Value="4" />
+    </Style>
+    <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+    <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
+    <!-- Panel splitters: always visible (the Fluent default is transparent until hovered) -->
+    <Style Selector="GridSplitter">
+      <Setter Property="Background" Value="#50808080" />
+      <Setter Property="MinWidth" Value="6" />
+      <Setter Property="MinHeight" Value="6" />
+    </Style>
+    <Style Selector="GridSplitter:pointerover">
+      <Setter Property="Background" Value="#A0808080" />
+    </Style>
+    <Style Selector="GridSplitter:pressed">
+      <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+  </Application.Styles>
+  <Application.DataTemplates>
+    <DataTemplate DataType="vm:GameOverviewDocument">
+      <StackPanel Margin="32" Spacing="12">
+        <TextBlock Text="{Binding GameName}" FontSize="28" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Opacity="0.8" LineHeight="22" />
+        <TextBlock Text="Double-click a room or a script in the project tree to open it. Build (⌘B) compiles the game with the AGS toolchain, Run (⌘R) starts it in the native engine."
+                   TextWrapping="Wrap" Opacity="0.6" Margin="0,12,0,0" />
+      </StackPanel>
+    </DataTemplate>
+    <DataTemplate DataType="vm:ScriptDocument">
+      <views:ScriptEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:SpriteFolderDocument">
+      <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+          <TextBlock Text="{Binding Summary}" VerticalAlignment="Center" Opacity="0.8" />
+          <Button Content="Import…"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ImportSpritesCommand}"
+                  CommandParameter="{Binding}" />
+          <Button Content="Import sprite sheet…" ToolTip.Tip="Import one sprite per tile of an image (tiled import)"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ImportSpriteSheetCommand}"
+                  CommandParameter="{Binding}" />
+          <Button Content="Paste" ToolTip.Tip="Paste new sprite from clipboard"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).PasteSpriteFromClipboardCommand}"
+                  CommandParameter="{Binding}" />
+          <Button Content="Export all…" ToolTip.Tip="Export the sprites of this folder (or all) as image files"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ExportAllSpritesCommand}"
+                  CommandParameter="{Binding}" />
+          <Button Content="Reimport from source" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ReimportSpriteCommand}"
+                  CommandParameter="{Binding Selected}" />
+          <Button Content="Delete" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).DeleteSpriteCommand}"
+                  CommandParameter="{Binding Selected}" />
+          <Button Content="Export selected…" IsEnabled="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}"
+                  Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ExportSpriteCommand}"
+                  CommandParameter="{Binding Selected}" />
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" SelectedItems="{Binding SelectedItems}" SelectionMode="Multiple" Background="Transparent">
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Edit in default image editor" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).EditSpriteExternallyCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Show sprite source in Finder" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ShowSpriteSourceInFinderCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Copy sprite to clipboard" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).CopySpriteToClipboardCommand}" CommandParameter="{Binding Selected}" />
+              <Separator />
+              <MenuItem Header="Show usage..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ShowSpriteUsageCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Assign sequential sprite numbers..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).AssignSequentialSpriteNumbersCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Change sprite number..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ChangeSpriteNumberCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Assign to view..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).AssignSpriteToViewCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Move to folder..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).MoveSpriteToFolderCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Crop sprite edges" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).CropSpriteEdgesCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Crop sprite edges (symmetric)" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).CropSpriteEdgesSymmetricCommand}" CommandParameter="{Binding Selected}" />
+              <Separator />
+              <MenuItem Header="Export sprite to file..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ExportSpriteCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Replace sprite from clipboard..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ReplaceSpriteFromClipboardCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Replace source paths for sprites..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ReplaceSourcePathsOfSpriteCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Replace sprite from file..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ReplaceSpriteFromFileCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Replace sprite(s) from source..." Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).ReimportSpriteCommand}" CommandParameter="{Binding Selected}" />
+              <MenuItem Header="Delete" Command="{Binding $parent[Window].((vm:MainWindowViewModel)Tag).DeleteSpriteCommand}" CommandParameter="{Binding Selected}" />
+            </ContextMenu>
+          </ListBox.ContextMenu>
+          <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ListBox.ItemsPanel>
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="vm:SpriteThumbnail">
+              <StackPanel Width="96" Spacing="2" ToolTip.Tip="{Binding Details}">
+                <Border Width="96" Height="96" Background="#40808080" CornerRadius="3">
+                  <Image Source="{Binding Image}" Stretch="Uniform" StretchDirection="Both" MaxWidth="88" MaxHeight="88"
+                         RenderOptions.BitmapInterpolationMode="None" />
+                </Border>
+                <TextBlock Text="{Binding Caption}" HorizontalAlignment="Center" FontSize="11" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </DataTemplate>
+    <DataTemplate DataType="vm:FindInScriptsDocument">
+      <views:FindInScriptsView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:TextParserDocument">
+      <views:TextParserView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:LipSyncDocument">
+      <ScrollViewer Margin="12">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Letters for each lip-sync frame, separated by '/' (e.g. M/B/P). Type and default frame are in the property grid."
+                     Opacity="0.7" TextWrapping="Wrap" Margin="0,0,0,8" />
+          <ItemsControl ItemsSource="{Binding Frames}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:LipSyncFrameRow">
+                <Grid ColumnDefinitions="80,320" Margin="0,1">
+                  <TextBlock Text="{Binding Frame, StringFormat='Frame {0}'}" VerticalAlignment="Center" />
+                  <TextBox Grid.Column="1" Text="{Binding Letters}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+    </DataTemplate>
+    <DataTemplate DataType="vm:PaletteDocument">
+      <views:PaletteView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:GlobalVariablesDocument">
+      <views:GlobalVariablesView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:DialogEditorDocument">
+      <views:DialogEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:ViewEditorDocument">
+      <views:ViewEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:FontDocument">
+      <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top" Spacing="8">
+          <TextBlock Text="{Binding Info}" Opacity="0.8" TextWrapping="Wrap" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Zoom" VerticalAlignment="Center" />
+            <ComboBox ItemsSource="{Binding ZoomLevels}" SelectedItem="{Binding Zoom}" MinWidth="64" />
+            <TextBox Text="{Binding SampleText}" MinWidth="420" />
+          </StackPanel>
+        </StackPanel>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" Margin="0,10,0,0">
+          <StackPanel Spacing="16" Background="#202020">
+            <Image Source="{Binding Sample}" Width="{Binding SampleWidth}" Height="{Binding SampleHeight}" Stretch="Fill"
+                   RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Left" Margin="8" />
+            <Image Source="{Binding Characters}" Width="{Binding CharactersWidth}" Height="{Binding CharactersHeight}" Stretch="Fill"
+                   RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Left" Margin="8" />
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </DataTemplate>
+    <DataTemplate DataType="vm:GuiEditorDocument">
+      <views:GuiEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:RoomEditorDocument">
+      <views:RoomEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:ProjectTool">
+      <views:ProjectPanel DataContext="{Binding Main}" />
+    </DataTemplate>
+    <DataTemplate DataType="vm:PropertiesTool">
+      <views:PropertiesPanel DataContext="{Binding Main}" />
+    </DataTemplate>
+    <DataTemplate DataType="vm:OutputTool">
+      <views:OutputPanel DataContext="{Binding Main}" />
+    </DataTemplate>
+    <DataTemplate DataType="vm:EditorDockDocument">
+      <ContentControl Content="{Binding Model}" />
+    </DataTemplate>
+  </Application.DataTemplates>
+</Application>

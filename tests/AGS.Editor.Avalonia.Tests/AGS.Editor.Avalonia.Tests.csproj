@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- xUnit v3 (required by Avalonia.Headless.XUnit 12) runs test projects as executables. -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AGS.Editor.Avalonia.Tests</RootNamespace>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.4" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/AGS.Editor.Avalonia/AGS.Editor.Avalonia.csproj" />
+    <ProjectReference Include="../../src/AGS.Imaging.Magick/AGS.Imaging.Magick.csproj" />
+  </ItemGroup>
+
+</Project>

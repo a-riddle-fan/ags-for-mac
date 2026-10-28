@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ae="using:AvaloniaEdit"
+             x:Class="AGS.Editor.Avalonia.Views.ScriptEditorView">
+  <Panel>
+    <ae:TextEditor x:Name="Editor"
+                   FontFamily="Menlo, Monaco, monospace" FontSize="13"
+                   ShowLineNumbers="True"
+                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Visible" />
+    <!-- Calltip (upstream's Scintilla calltip): signature with the current parameter in bold -->
+    <Popup x:Name="CallTipPopup" PlacementTarget="{Binding #Editor}" Placement="AnchorAndGravity" PlacementAnchor="TopLeft" PlacementGravity="BottomRight"
+           IsLightDismissEnabled="False">
+      <Border Background="#FFFFE1" BorderBrush="Gray" BorderThickness="1" Padding="6,3">
+        <TextBlock x:Name="CallTipText" FontFamily="Menlo, Monaco, monospace" FontSize="13" TextWrapping="Wrap" MaxWidth="700"
+                   Foreground="Black" />
+      </Border>
+    </Popup>
+  </Panel>
+</UserControl>
