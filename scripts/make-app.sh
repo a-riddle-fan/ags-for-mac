@@ -15,7 +15,9 @@ VERSION=$(python3 -c "import json; print(json.load(open('$ROOT/ags/version.json'
 
 echo "Publishing the editor..."
 rm -rf "$PUBLISH"
-dotnet publish "$ROOT/src/AGS.Editor.Avalonia" -c Release -r osx-arm64 --self-contained true -o "$PUBLISH" -v q
+# PathMap: the debug information names the sources relative to the project, not by the developer's home folder
+dotnet publish "$ROOT/src/AGS.Editor.Avalonia" -c Release -r osx-arm64 --self-contained true -o "$PUBLISH" -v q \
+    -p:PathMap="$ROOT=/ags4mac" -p:DebugType=embedded
 
 echo "Assembling $APP ..."
 rm -rf "$APP"
@@ -80,6 +82,51 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+
+# Libraries from Homebrew (/opt/homebrew, /usr/local) that the bundled native libraries link to go into the
+# bundle too, so the app runs on Macs without them: with a .NET SDK from Homebrew, the runtime's compression
+# library links to Homebrew's brotli. Their license files are copied to Contents/Resources/ThirdPartyLicenses.
+MACOS_DIR="$APP/Contents/MacOS"
+copied=" "
+changed=1
+while (( changed )); do
+  changed=0
+  for f in "$MACOS_DIR"/*; do
+    /usr/bin/file "$f" | /usr/bin/grep -q "Mach-O" || continue
+    self=$(otool -arch arm64 -D "$f" | tail -n +2)
+    for dep in $(otool -arch arm64 -L "$f" | tail -n +2 | awk '{print $1}'); do
+      [[ "$dep" == "$self" ]] && continue
+      name=$(basename "$dep")
+      src="$dep"
+      case "$dep" in
+        /opt/homebrew/*|/usr/local/*) ;;
+        # a library copied from Homebrew may find its siblings through @rpath (e.g. brotlicommon)
+        @rpath/*)
+          [[ "$copied" == *" $(basename "$f") "* ]] || continue
+          if [[ ! -f "$MACOS_DIR/$name" ]]; then
+            src=""
+            for d in /opt/homebrew/lib /usr/local/lib; do [[ -f "$d/$name" ]] && { src="$d/$name"; break; }; done
+            [[ -n "$src" ]] || continue
+          fi ;;
+        *) continue ;;
+      esac
+      if [[ ! -f "$MACOS_DIR/$name" ]]; then
+        real=$(realpath "$src")
+        cp "$real" "$MACOS_DIR/$name"
+        copied+="$name "
+        chmod u+w "$MACOS_DIR/$name"
+        install_name_tool -id "@loader_path/$name" "$MACOS_DIR/$name" 2>/dev/null
+        license=$(ls "$(dirname "$real")"/../LICENSE* 2>/dev/null | head -1)
+        if [[ -n "$license" ]]; then
+          mkdir -p "$APP/Contents/Resources/ThirdPartyLicenses"
+          cp "$license" "$APP/Contents/Resources/ThirdPartyLicenses/${name%%.*}-LICENSE"
+        fi
+        changed=1
+      fi
+      install_name_tool -change "$dep" "@loader_path/$name" "$f" 2>/dev/null
+    done
+  done
+done
 
 # Ad-hoc signature (required for arm64 code; not notarized).
 codesign --force --deep --sign - "$APP" 2>/dev/null

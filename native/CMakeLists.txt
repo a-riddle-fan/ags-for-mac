@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Source paths compiled into the binaries (__FILE__ in asserts and logs) are made relative to the ags4mac
+# folder, so the built app doesn't contain the developer's home folder.
+get_filename_component(AGSN_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
+add_compile_options("-ffile-prefix-map=${AGSN_PROJECT_ROOT}/=")
+
 set(AGS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../ags" CACHE PATH "Upstream AGS checkout")
 file(REAL_PATH "${AGS_ROOT}" AGS_ROOT)
 
