@@ -1,4 +1,4 @@
-# AGS Editor for macOS (ags4mac)
+# AGS Editor for macOS (ags-for-mac)
 
 **Deutsch** · [English](#english)
 
