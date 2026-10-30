@@ -22,16 +22,16 @@ namespace AGS.Editor.Core.Tests
         public void MessagesWaitForASlowlyStartingEngineAndArriveInOrder()
         {
             // Like a first launch: the engine only reads its messages after 4 seconds, then one at a time
-            // (dbgsend.tmp is read and deleted), writes them to a log and quits.
+            // (dbgsend_<token>.tmp is read and deleted), writes them to a log and quits.
             string log = Path.Combine(_dir, "received.log");
             string engine = Path.Combine(_dir, "fake-engine.sh");
             File.WriteAllText(engine,
                 "#!/bin/sh\n" +
-                "dir=\"$2\"\n" +
+                "token=\"$2\"; dir=\"${3#file=dir:}\"\n" +
                 "sleep 4\n" +
                 "while true; do\n" +
-                "  if [ -f \"$dir/dbgsend.tmp\" ]; then\n" +
-                "    msg=$(cat \"$dir/dbgsend.tmp\"); rm \"$dir/dbgsend.tmp\"\n" +
+                "  if [ -f \"$dir/dbgsend_$token.tmp\" ]; then\n" +
+                "    msg=$(cat \"$dir/dbgsend_$token.tmp\"); rm \"$dir/dbgsend_$token.tmp\"\n" +
                 "    echo \"$msg\" >> \"" + log + "\"\n" +
                 "    case \"$msg\" in *READY*) exit 0;; esac\n" +
                 "  fi\n" +

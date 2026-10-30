@@ -14,17 +14,18 @@ namespace AGS.Editor.Build
 
     /// <summary>
     /// Runs the game in the engine under the editor's control (upstream DebugController with
-    /// FileBasedEngineCommunication): the engine is started with "--enabledebugger &lt;folder&gt;" and both sides
-    /// exchange XML messages through dbgsend.tmp (editor → engine) and dbgrecv.tmp (engine → editor) in that
-    /// folder (ags4mac engine patch 0007). Breakpoints, Resume, Step, Pause and Stop work as in the upstream editor.
+    /// FileBasedEngineCommunication): the engine is started with "--enabledebugger &lt;token&gt; file=dir:&lt;folder&gt;"
+    /// and both sides exchange XML messages through dbgsend_&lt;token&gt;.tmp (editor → engine) and
+    /// dbgrecv_&lt;token&gt;.tmp (engine → editor) in that folder (ags4mac engine patch 0007). Breakpoints, Resume, Step, Pause and Stop work as in the upstream editor.
     /// </summary>
     public sealed class EngineDebugger : IDisposable
     {
-        private const string SendFile = "dbgsend.tmp";
-        private const string ReceiveFile = "dbgrecv.tmp";
+        private const string SendFile = "dbgsend_{0}.tmp";
+        private const string ReceiveFile = "dbgrecv_{0}.tmp";
 
         private readonly string _engine;
         private readonly string _gameFile;
+        private string _token;
         private string _folder;
         private Process _process;
         private Thread _receiver;
@@ -52,8 +53,8 @@ namespace AGS.Editor.Build
         {
             if (State != DebugSessionState.NotRunning)
                 throw new InvalidOperationException("The game is already running.");
-            // The engine keeps the folder in a 100-character buffer: use a short path.
-            _folder = Path.Combine("/tmp", "agsdbg-" + Guid.NewGuid().ToString("N").Substring(0, 12));
+            _token = Guid.NewGuid().ToString("N").Substring(0, 12);
+            _folder = Path.Combine("/tmp", "agsdbg-" + _token);
             Directory.CreateDirectory(_folder);
             _stopping = false;
 
@@ -65,9 +66,8 @@ namespace AGS.Editor.Build
                 WorkingDirectory = Path.GetDirectoryName(_gameFile),
             };
             psi.ArgumentList.Add("--enabledebugger");
-            psi.ArgumentList.Add(_folder);
-            psi.ArgumentList.Add("--debugger-comm"); // the default outside Windows, but said explicitly
-            psi.ArgumentList.Add("file");
+            psi.ArgumentList.Add(_token);
+            psi.ArgumentList.Add("file=dir:" + _folder); // files are the default outside Windows, but said explicitly
             psi.ArgumentList.Add(_gameFile);
             _process = Process.Start(psi);
             _process.EnableRaisingEvents = true;
@@ -153,8 +153,8 @@ namespace AGS.Editor.Build
         private void SendLoop()
         {
             BlockingCollection<string> queue = _outgoing;
-            string target = Path.Combine(_folder, SendFile);
-            string temp = Path.Combine(_folder, "dbgsend.part");
+            string target = Path.Combine(_folder, string.Format(SendFile, _token));
+            string temp = Path.Combine(_folder, "dbgsend_" + _token + ".part");
             try
             {
                 foreach (string message in queue.GetConsumingEnumerable())
@@ -174,7 +174,7 @@ namespace AGS.Editor.Build
 
         private void ReceiveLoop()
         {
-            string file = Path.Combine(_folder, ReceiveFile);
+            string file = Path.Combine(_folder, string.Format(ReceiveFile, _token));
             while (!_stopping)
             {
                 if (File.Exists(file))
