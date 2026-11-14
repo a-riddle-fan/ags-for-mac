@@ -84,20 +84,9 @@ function(agsn_apply_upstream_patch target patch_file)
     message(STATUS "ags4mac: applied ${patch_file}")
 endfunction()
 
-agsn_apply_upstream_patch(common "${CMAKE_CURRENT_SOURCE_DIR}/patches/0009-Common-fix-CopyPixelsRegion-with-a-vertical-offset.patch"
-    Common/gfx/bitmapdata.cpp)
-# libtools compiles its own copy of this Common source: the Common fix must reach the tools too.
-agsn_apply_upstream_patch(libtools "${CMAKE_CURRENT_SOURCE_DIR}/patches/0009-Common-fix-CopyPixelsRegion-with-a-vertical-offset.patch"
-    Common/gfx/bitmapdata.cpp)
-agsn_apply_upstream_patch(libtools "${CMAKE_CURRENT_SOURCE_DIR}/patches/0005-Tools-keep-mask-color-converting-32-to-16-bit.patch"
-    Tools/data/sprite_utils.cpp)
 agsn_apply_upstream_patch(engine "${CMAKE_CURRENT_SOURCE_DIR}/patches/0007-Engine-editor-debugging-on-non-Windows-platforms.patch"
     Engine/debug/debug.cpp Engine/debug/debugger.h Engine/debug/filebasedagsdebugger.cpp Engine/debug/filebasedagsdebugger.h
     Engine/main/main.cpp)
-# all agsbuild sources: main.cpp includes taskmanager.h next to itself
-agsn_apply_upstream_patch(agsbuild "${CMAKE_CURRENT_SOURCE_DIR}/patches/0010-agsbuild-deep-copy-task-strings-thread-race.patch"
-    Tools/agsbuild/taskmanager.cpp Tools/agsbuild/taskmanager.h Tools/agsbuild/main.cpp
-    Tools/agsbuild/pipedprocess.cpp Tools/agsbuild/pipedprocess.h)
 
 set(AGSN_CONSTANTS_OUT "${CMAKE_BINARY_DIR}/generated/agsn_constants.inc")
 include(cmake_generate_constants.cmake)

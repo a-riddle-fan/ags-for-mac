@@ -69,7 +69,7 @@ Die meisten Funktionen des Windows-Editors sind vorhanden:
 - Andockbare Fenster, Mac-Aussehen oder klassische Ansicht, hell und dunkel (Einstellungen mit ⌘,)
 
 Das Debuggen nutzt eine Engine-Erweiterung, die bei AGS noch geprüft wird
-([adventuregamestudio/ags#3162](https://github.com/adventuregamestudio/ags/pull/3162)). Offen sind unter anderem die
+([adventuregamestudio/ags#3199](https://github.com/adventuregamestudio/ags/pull/3199)). Offen sind unter anderem die
 Signierung und Notarisierung der App; einzelne seltene Funktionen (z. B. sehr alte Spiele vor AGS 3.0) fehlen noch.
 
 Wie der Port aufgebaut ist und welche Teile des AGS-Codes übernommen wurden: [`docs/FORKED_FILES.md`](docs/FORKED_FILES.md)
@@ -83,7 +83,7 @@ Voraussetzungen: macOS auf Apple Silicon, [.NET 10 SDK](https://dotnet.microsoft
 ```sh
 # 1. Den AGS-Quellcode im getesteten Stand neben die Projektdateien holen (Ordner "ags")
 git clone https://github.com/adventuregamestudio/ags.git ags
-git -C ags checkout edf5bb991
+git -C ags checkout c4585d2d7
 #    und das Testspiel (Maniac Mansion Mania "Bernard Starterpack")
 git clone https://github.com/ManiacMansionMania/Bernard-SP.git testdata/Bernard-SP
 
@@ -96,7 +96,7 @@ scripts/test-all.sh
 scripts/make-app.sh
 ```
 
-Getestet wird gegen den AGS-Stand `master` @ `edf5bb991` und das Testspiel @ `fa24c33`. Mit einem neueren AGS-Stand
+Getestet wird gegen den AGS-Stand `master` @ `c4585d2d7` und das Testspiel @ `fa24c33`. Mit einem neueren AGS-Stand
 kann der Build scheitern, wenn sich Dateien geändert haben, die `native/patches` korrigiert.
 
 ---
@@ -167,7 +167,7 @@ Most features of the Windows editor are there:
 - Dockable panels, Mac look or classic look, light and dark (settings with ⌘,)
 
 Debugging uses an engine extension that is still under review at AGS
-([adventuregamestudio/ags#3162](https://github.com/adventuregamestudio/ags/pull/3162)). Still open are, among other
+([adventuregamestudio/ags#3199](https://github.com/adventuregamestudio/ags/pull/3199)). Still open are, among other
 things, signing and notarizing the app; a few rare features (e.g. very old games from before AGS 3.0) are missing.
 
 How the port is put together and which parts of the AGS code it carries over: [`docs/FORKED_FILES.md`](docs/FORKED_FILES.md).
@@ -181,7 +181,7 @@ Requirements: macOS on Apple Silicon, the [.NET 10 SDK](https://dotnet.microsoft
 ```sh
 # 1. Get the AGS sources at the tested revision next to the project files (folder "ags")
 git clone https://github.com/adventuregamestudio/ags.git ags
-git -C ags checkout edf5bb991
+git -C ags checkout c4585d2d7
 #    and the test game (Maniac Mansion Mania "Bernard Starterpack")
 git clone https://github.com/ManiacMansionMania/Bernard-SP.git testdata/Bernard-SP
 
@@ -194,7 +194,7 @@ scripts/test-all.sh
 scripts/make-app.sh
 ```
 
-Tested against AGS `master` @ `edf5bb991` and the test game @ `fa24c33`. With a newer AGS revision the build can fail
+Tested against AGS `master` @ `c4585d2d7` and the test game @ `fa24c33`. With a newer AGS revision the build can fail
 if files that `native/patches` corrects have changed.
 
 ---
