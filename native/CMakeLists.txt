@@ -18,7 +18,7 @@ set(AGS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../ags" CACHE PATH "Upstream AGS check
 file(REAL_PATH "${AGS_ROOT}" AGS_ROOT)
 
 # Pull in the upstream build. Everything is EXCLUDE_FROM_ALL: building `agsnative` only builds the
-# libraries it needs; scripts/build-upstream-tools.sh builds the (equally patched) tools and engine.
+# libraries it needs; scripts/build-upstream-tools.sh builds the tools and engine.
 set(AGS_BUILD_ENGINE ON CACHE BOOL "" FORCE)
 set(AGS_BUILD_TOOLS ON CACHE BOOL "" FORCE)
 set(AGS_BUILD_COMPILER ON CACHE BOOL "" FORCE)
@@ -83,10 +83,6 @@ function(agsn_apply_upstream_patch target patch_file)
     endforeach()
     message(STATUS "ags4mac: applied ${patch_file}")
 endfunction()
-
-agsn_apply_upstream_patch(engine "${CMAKE_CURRENT_SOURCE_DIR}/patches/0007-Engine-editor-debugging-on-non-Windows-platforms.patch"
-    Engine/debug/debug.cpp Engine/debug/debugger.h Engine/debug/filebasedagsdebugger.cpp Engine/debug/filebasedagsdebugger.h
-    Engine/main/main.cpp)
 
 set(AGSN_CONSTANTS_OUT "${CMAKE_BINARY_DIR}/generated/agsn_constants.inc")
 include(cmake_generate_constants.cmake)

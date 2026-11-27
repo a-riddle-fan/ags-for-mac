@@ -27,7 +27,11 @@ namespace AGS.Editor.Core.Tests
             string engine = Path.Combine(_dir, "fake-engine.sh");
             File.WriteAllText(engine,
                 "#!/bin/sh\n" +
-                "token=\"$2\"; dir=\"${3#file=dir:}\"\n" +
+                "[ \"$1\" = --debugger ] && [ \"$3\" = --windowed ] && [ \"$4\" = \"" + Path.Combine(_dir, "game.ags") + "\" ] || exit 1\n" +
+                "config=\"${2#file=token:}\"\n" +
+                "[ \"$config\" != \"$2\" ] || exit 1\n" +
+                "token=\"${config%%,dir:*}\"; dir=\"${config#*,dir:}\"\n" +
+                "[ \"$dir\" != \"$config\" ] && [ -n \"$token\" ] && [ -n \"$dir\" ] || exit 1\n" +
                 "sleep 4\n" +
                 "while true; do\n" +
                 "  if [ -f \"$dir/dbgsend_$token.tmp\" ]; then\n" +

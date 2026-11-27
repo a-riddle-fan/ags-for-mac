@@ -141,7 +141,7 @@ singletons; it ports the UI-free logic into explicit services and replaces UI ca
 | `FontsComponent.ImportWFNFont` (SCI part), `agsnative.cpp` `import_sci_font` (writes to a given file instead of the current folder) | `FontOperations.ImportFont`, `agsn_font_import_sci` in `native/shim/agsn_gui.cpp`, `NativeGuiRenderer.ImportSciFont` |
 | `Panes/GUIEditor` (selection, move/resize, CreateNewControl, DeleteControlClick, z-order) | `GuiEditorDocument.cs`, `Views/GuiCanvas.cs` (Avalonia) |
 | `Tasks.CreateNewGameFromTemplate`/`CreateTemplateFromCurrentGame`/`ConstructBasicFileListForTemplate`, `GUIController.CreateNewGame`, `agsnative.cpp` `extract_template_files*`, `Utilities.EnsureStandardSubFoldersExist` | `GameTemplates.cs`, `native/shim/agsn_template.cpp` (packing with agspak instead of DataFileWriter) |
-| `Debugger/DebugController`, `FileBasedEngineCommunication`, `Tasks.TestGame(withDebugger)` | `Build/EngineDebugger.cs` (+ engine patch 0007), debug commands in the view model |
+| `Debugger/DebugController`, `FileBasedEngineCommunication`, `Tasks.TestGame(withDebugger)` | `Build/EngineDebugger.cs`, debug commands in the view model |
 | `CursorsComponent` new/delete | `ProjectOperations.AddCursor`/`DeleteCursor` |
 | `AudioComponent.ReplaceAudioClipSource` | `EditorDialogs.ReplaceAudioClipSource` (+ `AudioOperations.SetAudioClipSourceFile`) |
 | `CustomPropertiesComponent.SyncCustomPropertiesWithSchema` | `GameProject.SyncCustomPropertiesWithSchema` |
