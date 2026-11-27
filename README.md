@@ -21,7 +21,7 @@ Das Original – den offiziellen Editor für Windows, die Engine, Handbuch und F
 - **100 % kompatibel:** Er öffnet und speichert dieselben Projektdateien wie der Windows-Editor (`Game.agf`, Räume,
   Sprites, Skripte, Übersetzungen …). Ein Projekt kann zwischen Windows und Mac hin- und hergereicht werden.
 - **Derselbe Code:** Die Datenstrukturen, der Skript-Compiler, die Build-Werkzeuge und die Engine werden direkt aus dem
-  AGS-Quellcode gebaut – unverändert bis auf wenige Fehlerkorrekturen, die noch auf die Übernahme bei AGS warten. Nur
+  AGS-Quellcode gebaut – gegebenenfalls mit Fehlerkorrekturen, die noch auf die Übernahme bei AGS warten. Nur
   die Windows-Oberfläche (WinForms) ist durch eine neue Oberfläche mit [Avalonia UI](https://avaloniaui.net) ersetzt.
   Wo möglich wird die Original-Logik 1:1 übernommen.
 - **Fehlerkorrekturen gehen zurück an AGS:** Fehler im AGS-Code, die bei der Portierung aufgefallen sind, werden als
@@ -68,7 +68,7 @@ Die meisten Funktionen des Windows-Editors sind vorhanden:
 - Bauen, Starten und Debuggen (Breakpoints, Einzelschritte), Ausgabe als macOS-App
 - Andockbare Fenster, Mac-Aussehen oder klassische Ansicht, hell und dunkel (Einstellungen mit ⌘,)
 
-Das Debuggen nutzt eine Engine-Erweiterung, die bei AGS noch geprüft wird
+Das Debuggen nutzt eine in AGS übernommene Engine-Erweiterung
 ([adventuregamestudio/ags#3199](https://github.com/adventuregamestudio/ags/pull/3199)). Offen sind unter anderem die
 Signierung und Notarisierung der App; einzelne seltene Funktionen (z. B. sehr alte Spiele vor AGS 3.0) fehlen noch.
 
@@ -83,11 +83,11 @@ Voraussetzungen: macOS auf Apple Silicon, [.NET 10 SDK](https://dotnet.microsoft
 ```sh
 # 1. Den AGS-Quellcode im getesteten Stand neben die Projektdateien holen (Ordner "ags")
 git clone https://github.com/adventuregamestudio/ags.git ags
-git -C ags checkout c4585d2d7
+git -C ags checkout 9c7f66d4d
 #    und das Testspiel (Maniac Mansion Mania "Bernard Starterpack")
 git clone https://github.com/ManiacMansionMania/Bernard-SP.git testdata/Bernard-SP
 
-# 2. Native Teile bauen: libagsnative, AGS-Werkzeuge und Engine (mit den Patches aus native/patches)
+# 2. Native Teile bauen: libagsnative, AGS-Werkzeuge und Engine (ggf. mit Patches aus native/patches)
 scripts/build-native.sh
 scripts/build-upstream-tools.sh
 
@@ -96,7 +96,7 @@ scripts/test-all.sh
 scripts/make-app.sh
 ```
 
-Getestet wird gegen den AGS-Stand `master` @ `c4585d2d7` und das Testspiel @ `fa24c33`. Mit einem neueren AGS-Stand
+Getestet wird gegen den AGS-Stand `master` @ `9c7f66d4d` und das Testspiel @ `fa24c33`. Mit einem neueren AGS-Stand
 kann der Build scheitern, wenn sich Dateien geändert haben, die `native/patches` korrigiert.
 
 ---
@@ -121,7 +121,7 @@ the official editor for Windows, the engine, the manual and the forums – is at
 - **100 % compatible:** it opens and saves the same project files as the Windows editor (`Game.agf`, rooms, sprites,
   scripts, translations …). A project can be passed back and forth between Windows and Mac.
 - **The same code:** the data model, the script compiler, the build tools and the engine are built straight from the
-  AGS sources – unmodified apart from a few fixes that are waiting to be merged by AGS. Only the Windows user interface
+  AGS sources – with fixes where needed while they are waiting to be merged by AGS. Only the Windows user interface
   (WinForms) is replaced by a new one built with [Avalonia UI](https://avaloniaui.net). Wherever possible the original
   logic is carried over as it is.
 - **Fixes go back to AGS:** bugs in the AGS code found while porting are kept as small patches
@@ -166,7 +166,7 @@ Most features of the Windows editor are there:
 - Build, run and debug (breakpoints, stepping), packaging as a macOS app
 - Dockable panels, Mac look or classic look, light and dark (settings with ⌘,)
 
-Debugging uses an engine extension that is still under review at AGS
+Debugging uses an engine extension merged into AGS
 ([adventuregamestudio/ags#3199](https://github.com/adventuregamestudio/ags/pull/3199)). Still open are, among other
 things, signing and notarizing the app; a few rare features (e.g. very old games from before AGS 3.0) are missing.
 
@@ -181,11 +181,11 @@ Requirements: macOS on Apple Silicon, the [.NET 10 SDK](https://dotnet.microsoft
 ```sh
 # 1. Get the AGS sources at the tested revision next to the project files (folder "ags")
 git clone https://github.com/adventuregamestudio/ags.git ags
-git -C ags checkout c4585d2d7
+git -C ags checkout 9c7f66d4d
 #    and the test game (Maniac Mansion Mania "Bernard Starterpack")
 git clone https://github.com/ManiacMansionMania/Bernard-SP.git testdata/Bernard-SP
 
-# 2. Build the native parts: libagsnative, the AGS tools and the engine (with the patches from native/patches)
+# 2. Build the native parts: libagsnative, the AGS tools and the engine (with patches from native/patches if needed)
 scripts/build-native.sh
 scripts/build-upstream-tools.sh
 
@@ -194,7 +194,7 @@ scripts/test-all.sh
 scripts/make-app.sh
 ```
 
-Tested against AGS `master` @ `c4585d2d7` and the test game @ `fa24c33`. With a newer AGS revision the build can fail
+Tested against AGS `master` @ `9c7f66d4d` and the test game @ `fa24c33`. With a newer AGS revision the build can fail
 if files that `native/patches` corrects have changed.
 
 ---

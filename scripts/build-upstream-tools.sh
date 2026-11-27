@@ -1,6 +1,5 @@
 #!/bin/zsh
-# Builds the AGS engine and command-line tools natively (arm64) with the ags4mac fixes for upstream
-# bugs applied (native/patches, via native/CMakeLists.txt), and assembles build/agstools/: the "system
+# Builds the AGS engine and command-line tools natively (arm64) and assembles build/agstools/: the "system
 # dir" that agsbuild expects (all tools side by side, plus the script API header agsdefns.sh).
 set -euo pipefail
 

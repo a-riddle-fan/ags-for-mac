@@ -14,9 +14,9 @@ namespace AGS.Editor.Build
 
     /// <summary>
     /// Runs the game in the engine under the editor's control (upstream DebugController with
-    /// FileBasedEngineCommunication): the engine is started with "--enabledebugger &lt;token&gt; file=dir:&lt;folder&gt;"
+    /// FileBasedEngineCommunication): the engine is started with "--debugger file=token:&lt;token&gt;,dir:&lt;folder&gt;"
     /// and both sides exchange XML messages through dbgsend_&lt;token&gt;.tmp (editor → engine) and
-    /// dbgrecv_&lt;token&gt;.tmp (engine → editor) in that folder (ags4mac engine patch 0007). Breakpoints, Resume, Step, Pause and Stop work as in the upstream editor.
+    /// dbgrecv_&lt;token&gt;.tmp (engine → editor) in that folder. Breakpoints, Resume, Step, Pause and Stop work as in the upstream editor.
     /// </summary>
     public sealed class EngineDebugger : IDisposable
     {
@@ -65,9 +65,9 @@ namespace AGS.Editor.Build
                 RedirectStandardError = true,
                 WorkingDirectory = Path.GetDirectoryName(_gameFile),
             };
-            psi.ArgumentList.Add("--enabledebugger");
-            psi.ArgumentList.Add(_token);
-            psi.ArgumentList.Add("file=dir:" + _folder); // files are the default outside Windows, but said explicitly
+            psi.ArgumentList.Add("--debugger");
+            psi.ArgumentList.Add("file=token:" + _token + ",dir:" + _folder);
+            psi.ArgumentList.Add("--windowed");
             psi.ArgumentList.Add(_gameFile);
             _process = Process.Start(psi);
             _process.EnableRaisingEvents = true;
